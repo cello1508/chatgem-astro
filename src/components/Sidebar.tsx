@@ -17,7 +17,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
 
-  const [showPlugins, setShowPlugins] = useState(false);
   const [pluginDialogOpen, setPluginDialogOpen] = useState(false);
 
   const sections = [
@@ -38,10 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: 'meeting-notes', name: 'Notas de Reunião', description: 'Organização de reuniões' },
     { id: 'file-converter', name: 'Conversor de Arquivos', description: 'Converta entre formatos' },
   ];
-
-  const togglePlugins = () => {
-    setShowPlugins(!showPlugins);
-  };
 
   const openPluginGallery = () => {
     setPluginDialogOpen(true);
@@ -112,35 +107,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         <ProductivityChart />
       </div>
 
-      {/* Plugin Library Dropdown (shows when togglePlugins is true) */}
-      {showPlugins && (
-        <div className="px-3 pb-3 animate-fade-in">
-          <div className="bg-gray-800/50 rounded-lg p-3">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium flex items-center gap-1.5">
-                <Plug size={15} /> Biblioteca de Plugins
-              </h3>
-              <button 
-                onClick={openPluginGallery}
-                className="text-xs text-success hover:underline"
-              >
-                Ver todos
-              </button>
-            </div>
-            <div className="space-y-1.5">
-              {plugins.slice(0, 4).map(plugin => (
-                <button 
-                  key={plugin.id}
-                  className="w-full text-left text-sm bg-gray-700/30 hover:bg-gray-700/50 rounded px-2.5 py-1.5 transition-all"
-                >
-                  {plugin.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Plugin Gallery Dialog */}
       <Dialog open={pluginDialogOpen} onOpenChange={setPluginDialogOpen}>
         <DialogContent className="glass border-gray-800 max-w-3xl">
@@ -177,18 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
             </div>
             <div className="text-sm">Usuário</div>
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={togglePlugins}
-              className={`p-1.5 rounded-md transition-all ${
-                showPlugins 
-                  ? 'bg-success/20 text-success' 
-                  : 'hover:bg-gray-700/50 text-gray-300'
-              }`}
-              title="Biblioteca de Plugins"
-            >
-              <Plug size={18} />
-            </button>
+          <div>
             <button 
               onClick={openPluginGallery}
               className="p-1.5 rounded-md hover:bg-gray-700/50 text-gray-300 transition-all"
