@@ -56,9 +56,9 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
     };
   }, [defaultEpisodeId]);
 
-  const handlePlayItem = (spotifyId: string) => {
+  const handlePlayPlaylist = () => {
     if (controller) {
-      controller.loadUri(spotifyId);
+      controller.loadUri(`spotify:playlist:${defaultPlaylistId}`);
     }
   };
 
@@ -67,24 +67,12 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
       <div ref={embedRef} id="embed-iframe" className="w-full" />
       
       <div className="flex flex-wrap items-center justify-between p-3 bg-[#6D1A4D]">
-        <div className="flex flex-wrap gap-2 mb-2 sm:mb-0">
+        <div className="flex flex-wrap gap-2">
           <button 
             className="px-3 py-2 rounded-md bg-[#191414] hover:bg-[#1DB954] transition-colors"
-            onClick={() => handlePlayItem(`spotify:playlist:${defaultPlaylistId}`)}
+            onClick={handlePlayPlaylist}
           >
             Playlist de foco
-          </button>
-          <button 
-            className="px-3 py-2 rounded-md bg-[#191414] hover:bg-[#1DB954] transition-colors"
-            onClick={() => handlePlayItem('spotify:episode:7makk4oTQel546B0PZlDM5')}
-          >
-            Episódio 1
-          </button>
-          <button 
-            className="px-3 py-2 rounded-md bg-[#191414] hover:bg-[#1DB954] transition-colors"
-            onClick={() => handlePlayItem('spotify:episode:43cbJh4ccRD7lzM2730YK3')}
-          >
-            Episódio 2
           </button>
         </div>
         
@@ -97,3 +85,4 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
 };
 
 export default SpotifyPlayer;
+
