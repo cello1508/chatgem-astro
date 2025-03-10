@@ -57,7 +57,7 @@ const ProductivityChart: React.FC = () => {
   
   return (
     <>
-      <div className="glass rounded-xl p-4 w-full z-10 relative">
+      <div className="glass rounded-xl p-4 w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-success" />
@@ -81,16 +81,16 @@ const ProductivityChart: React.FC = () => {
           </div>
         </div>
         
-        <div className="min-h-[250px] flex flex-col items-center justify-center transition-all duration-300">
-          <div className="w-56 h-56 mx-auto">
+        <div className="flex flex-col items-center justify-center pb-2">
+          <div className="w-[180px] h-[180px] mx-auto">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
+                  innerRadius={40}
+                  outerRadius={70}
                   paddingAngle={2}
                   dataKey={showUsage ? "value" : "spending"}
                 >
@@ -109,35 +109,33 @@ const ProductivityChart: React.FC = () => {
             </ResponsiveContainer>
           </div>
           
-          <div className="grid grid-cols-2 gap-x-8 gap-y-3 mt-6">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
             {data.map((item, index) => (
               <div key={index} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-sm">
-                  {item.name}: {showUsage ? `${item.value}` : `$${item.spending.toFixed(2)}`}
+                <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                  {item.name.length > 8 
+                    ? `${item.name.substring(0, 8)}... ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
+                    : `${item.name}: ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
+                  }
                 </span>
               </div>
             ))}
           </div>
           
-          <div className="mt-8 text-center">
-            <p className="text-lg font-medium mb-2">
+          <div className="mt-4 text-center">
+            <p className="text-sm font-medium">
               {showUsage 
                 ? `Total: ${totalUses} consultas` 
                 : `Total: $${totalSpending.toFixed(2)}`}
             </p>
-            <p className="text-gray-400 text-sm max-w-[80%] mx-auto">
-              {showUsage 
-                ? "Quantidade de consultas realizadas em cada modelo de IA."
-                : "Gastos realizados com cada modelo de IA."}
-            </p>
             
             <button 
               onClick={generateReport}
-              className="mt-6 flex items-center gap-2 px-4 py-2 mx-auto text-sm rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+              className="mt-4 flex items-center gap-2 px-4 py-1.5 mx-auto text-xs rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
             >
-              <Share2 size={18} />
-              Gerar Relatório Completo
+              <Share2 size={16} />
+              Gerar Relatório
             </button>
           </div>
         </div>

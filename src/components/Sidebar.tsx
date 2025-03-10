@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
       </div>
 
       {/* Sections */}
-      <div className="p-3 overflow-y-auto" style={{ flex: '1 1 auto' }}>
+      <div className="p-3 overflow-y-auto flex-grow">
         <nav className="space-y-1">
           {sections.map((section) => (
             <button
@@ -69,8 +69,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         </nav>
       </div>
 
-      {/* Productivity Chart container */}
-      <div className="relative mb-16" style={{ height: '100px' }}>
+      {/* Productivity Chart container - fixed size and position */}
+      <div className="px-3 pb-3">
         <ProductivityChart />
       </div>
 
