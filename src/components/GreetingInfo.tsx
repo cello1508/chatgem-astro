@@ -1,8 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff, Plus, History, ChevronDown, ChevronUp } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { TrendingUp, TrendingDown, CloudOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface WeatherData {
@@ -29,13 +27,11 @@ interface Coordinates {
 }
 
 interface GreetingInfoProps {
-  onNewConversation?: () => void;
   onSelectModel?: (modelId: string) => void;
   selectedModel?: string;
 }
 
 const GreetingInfo: React.FC<GreetingInfoProps> = ({ 
-  onNewConversation,
   onSelectModel,
   selectedModel = 'gpt-3.5-turbo'
 }) => {
@@ -51,11 +47,9 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [weatherError, setWeatherError] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get user's location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -121,7 +115,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
       if (!userLocation) return;
       
       try {
-        // Using a free weather API that doesn't require authentication
         const response = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&current=temperature_2m,weather_code&timezone=auto`
         );
@@ -132,7 +125,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
         
         const data = await response.json();
         
-        // Map the data from open-meteo to our WeatherData format
         const weatherInfo: WeatherData = {
           main: {
             temp: data.current.temperature_2m
@@ -169,10 +161,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     };
   }, [toast, selectedPeriod, userLocation]);
 
-  // Helper function to get weather description based on code
   const getWeatherDescription = (code: number): string => {
-    // WMO Weather interpretation codes (WW)
-    // https://open-meteo.com/en/docs
     if (code === 0) return "Céu limpo";
     if (code >= 1 && code <= 3) return "Parcialmente nublado";
     if (code >= 45 && code <= 48) return "Nevoeiro";
@@ -188,22 +177,20 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     return "Desconhecido";
   };
 
-  // Helper function to get weather icon based on code
   const getWeatherIcon = (code: number): string => {
-    // Map WMO codes to OpenWeatherMap icon codes for compatibility
-    if (code === 0) return "01d"; // Clear sky
-    if (code >= 1 && code <= 3) return "02d"; // Partly cloudy
-    if (code >= 45 && code <= 48) return "50d"; // Fog
-    if (code >= 51 && code <= 55) return "09d"; // Drizzle
-    if (code >= 56 && code <= 57) return "09d"; // Freezing drizzle
-    if (code >= 61 && code <= 65) return "10d"; // Rain
-    if (code >= 66 && code <= 67) return "13d"; // Freezing rain
-    if (code >= 71 && code <= 75) return "13d"; // Snow
-    if (code === 77) return "13d"; // Snow grains
-    if (code >= 80 && code <= 82) return "09d"; // Rain showers
-    if (code >= 85 && code <= 86) return "13d"; // Snow showers
-    if (code >= 95 && code <= 99) return "11d"; // Thunderstorm
-    return "50d"; // Default
+    if (code === 0) return "01d";
+    if (code >= 1 && code <= 3) return "02d";
+    if (code >= 45 && code <= 48) return "50d";
+    if (code >= 51 && code <= 55) return "09d";
+    if (code >= 56 && code <= 57) return "09d";
+    if (code >= 61 && code <= 65) return "10d";
+    if (code >= 66 && code <= 67) return "13d";
+    if (code >= 71 && code <= 75) return "13d";
+    if (code === 77) return "13d";
+    if (code >= 80 && code <= 82) return "09d";
+    if (code >= 85 && code <= 86) return "13d";
+    if (code >= 95 && code <= 99) return "11d";
+    return "50d";
   };
 
   const getPriceTrend = () => {
@@ -329,8 +316,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
         </div>
       </div>
       
-      {/* Centered model selection and conversation controls */}
-      <div className="flex flex-col items-center mt-6 space-y-3">
+      <div className="flex justify-center mt-6">
         <div className="w-full max-w-md">
           <Select value={selectedModel} onValueChange={handleModelChange}>
             <SelectTrigger className="w-full bg-[#1f1f1f] border-gray-700">
@@ -344,49 +330,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             </SelectContent>
           </Select>
         </div>
-        
-        <button
-          onClick={onNewConversation}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white transition-colors w-full max-w-md"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nova Conversa</span>
-        </button>
-        
-        <Collapsible 
-          open={isHistoryOpen} 
-          onOpenChange={setIsHistoryOpen}
-          className="w-full max-w-md bg-[#1f1f1f] rounded-md overflow-hidden"
-        >
-          <CollapsibleTrigger className="flex justify-between items-center w-full p-3 text-left bg-[#1f1f1f] hover:bg-[#2a2a2a] border-t border-b border-gray-800">
-            <div className="flex items-center space-x-2">
-              <History className="h-4 w-4 text-gray-400" />
-              <span>Histórico de Conversas</span>
-            </div>
-            {isHistoryOpen ? (
-              <ChevronUp className="h-4 w-4 text-gray-400" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="p-2 max-h-48 overflow-y-auto scrollbar-thin">
-            <div className="space-y-1">
-              {/* Placeholder for conversation history items */}
-              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
-                <p className="text-sm truncate">Como usar o GPT para pesquisa</p>
-                <p className="text-xs text-gray-400">Ontem</p>
-              </div>
-              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
-                <p className="text-sm truncate">Ajuda com código React</p>
-                <p className="text-xs text-gray-400">3 dias atrás</p>
-              </div>
-              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
-                <p className="text-sm truncate">Ideias para projeto de IA</p>
-                <p className="text-xs text-gray-400">5 dias atrás</p>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
       </div>
     </div>
   );
