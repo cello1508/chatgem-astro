@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { TrendingUp, TrendingDown } from 'lucide-react';
@@ -34,9 +33,7 @@ const GreetingInfo: React.FC = () => {
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const { toast } = useToast();
 
-  // Check if message has been sent
   useEffect(() => {
-    // Listen for message events from ChatInput
     const handleMessageSent = () => {
       setHasMessageBeenSent(true);
     };
@@ -51,12 +48,10 @@ const GreetingInfo: React.FC = () => {
   useEffect(() => {
     const fetchBtcPrice = async () => {
       try {
-        // Fetch directly from Binance API
         const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
         const data = await response.json();
         const newPrice = parseFloat(data.price);
         
-        // Update price data for the current time period
         setPriceData(prev => ({
           ...prev,
           [selectedPeriod]: {
@@ -76,7 +71,6 @@ const GreetingInfo: React.FC = () => {
 
     const fetchWeather = async () => {
       try {
-        // Using a valid API key for OpenWeatherMap
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Sao Paulo,br&units=metric&appid=4331036eb3b754b61040c7f1116dd796`);
         const data = await response.json();
         setWeatherData(data);
@@ -92,20 +86,15 @@ const GreetingInfo: React.FC = () => {
       }
     };
 
-    // Initial fetch
     fetchBtcPrice();
     fetchWeather();
 
-    // Set up interval for real-time updates of BTC price
-    const btcInterval = setInterval(fetchBtcPrice, 10000); // Update every 10 seconds
-
-    // Clean up interval on component unmount
+    const btcInterval = setInterval(fetchBtcPrice, 10000);
     return () => {
       clearInterval(btcInterval);
     };
   }, [toast, selectedPeriod]);
 
-  // Determine price trend
   const getPriceTrend = () => {
     const currentData = priceData[selectedPeriod];
     if (!currentData.previousPrice || !currentData.currentPrice) return 'neutral';
@@ -113,7 +102,6 @@ const GreetingInfo: React.FC = () => {
            currentData.currentPrice < currentData.previousPrice ? 'down' : 'neutral';
   };
 
-  // Calculate percentage change
   const getPercentageChange = () => {
     const currentData = priceData[selectedPeriod];
     if (!currentData.previousPrice || !currentData.currentPrice) return null;
@@ -143,7 +131,6 @@ const GreetingInfo: React.FC = () => {
 
   return (
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
-      <h2 className="text-xl font-medium text-white mb-3">Olá, bom dia!</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className={`bg-[#1f1f1f] p-4 rounded-md transition-colors duration-500 ${
           hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
