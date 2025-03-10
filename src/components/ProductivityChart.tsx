@@ -23,6 +23,7 @@ const ProductivityChart: React.FC = () => {
   const totalHours = data.reduce((sum, item) => sum + item.value, 0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [retrospectiveText, setRetrospectiveText] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
   
   const generateRetrospective = () => {
     // Generate retrospective summary
@@ -55,7 +56,11 @@ const ProductivityChart: React.FC = () => {
   
   return (
     <>
-      <div className="glass rounded-xl p-4 w-full">
+      <div 
+        className="glass rounded-xl p-4 w-full transition-all duration-300 cursor-pointer"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-success" />
@@ -71,15 +76,15 @@ const ProductivityChart: React.FC = () => {
         </div>
         
         <div className="flex justify-between items-center">
-          <div className="w-20 h-20">
+          <div className={`transition-all duration-300 ${isHovered ? 'w-28 h-28 -mt-6 scale-110' : 'w-20 h-20'}`}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={25}
-                  outerRadius={35}
+                  innerRadius={isHovered ? 35 : 25}
+                  outerRadius={isHovered ? 50 : 35}
                   paddingAngle={2}
                   dataKey="value"
                 >
