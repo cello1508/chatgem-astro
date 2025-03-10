@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff } from 'lucide-react';
 
 interface WeatherData {
   main?: {
@@ -37,6 +38,7 @@ const GreetingInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [weatherError, setWeatherError] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -51,13 +53,18 @@ const GreetingInfo: React.FC = () => {
         },
         (error) => {
           console.error('Error getting location:', error);
+          setWeatherError(true);
+          setLoading(false);
           toast({
             title: "Erro na localização",
-            description: "Não foi possível obter sua localização. Usando localização padrão.",
+            description: "Não foi possível obter sua localização.",
             variant: "destructive",
           });
         }
       );
+    } else {
+      setWeatherError(true);
+      setLoading(false);
     }
   }, [toast]);
 
@@ -101,13 +108,33 @@ const GreetingInfo: React.FC = () => {
       if (!userLocation) return;
       
       try {
+        // Using a free weather API that doesn't require authentication
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.latitude}&lon=${userLocation.longitude}&units=metric&appid=4331036eb3b754b61040c7f1116dd796`
+          `https://api.open-meteo.com/v1/forecast?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&current=temperature_2m,weather_code&timezone=auto`
         );
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+        
         const data = await response.json();
-        setWeatherData(data);
+        
+        // Map the data from open-meteo to our WeatherData format
+        const weatherInfo: WeatherData = {
+          main: {
+            temp: data.current.temperature_2m
+          },
+          weather: [{
+            description: getWeatherDescription(data.current.weather_code),
+            icon: getWeatherIcon(data.current.weather_code)
+          }],
+          name: 'sua região'
+        };
+        
+        setWeatherData(weatherInfo);
       } catch (error) {
         console.error('Error fetching weather:', error);
+        setWeatherError(true);
         toast({
           title: "Erro",
           description: "Não foi possível obter informações do clima.",
@@ -128,6 +155,43 @@ const GreetingInfo: React.FC = () => {
       clearInterval(btcInterval);
     };
   }, [toast, selectedPeriod, userLocation]);
+
+  // Helper function to get weather description based on code
+  const getWeatherDescription = (code: number): string => {
+    // WMO Weather interpretation codes (WW)
+    // https://open-meteo.com/en/docs
+    if (code === 0) return "Céu limpo";
+    if (code >= 1 && code <= 3) return "Parcialmente nublado";
+    if (code >= 45 && code <= 48) return "Nevoeiro";
+    if (code >= 51 && code <= 55) return "Garoa";
+    if (code >= 56 && code <= 57) return "Garoa congelante";
+    if (code >= 61 && code <= 65) return "Chuva";
+    if (code >= 66 && code <= 67) return "Chuva congelante";
+    if (code >= 71 && code <= 75) return "Neve";
+    if (code === 77) return "Granizo";
+    if (code >= 80 && code <= 82) return "Chuva forte";
+    if (code >= 85 && code <= 86) return "Neve forte";
+    if (code >= 95 && code <= 99) return "Tempestade";
+    return "Desconhecido";
+  };
+
+  // Helper function to get weather icon based on code
+  const getWeatherIcon = (code: number): string => {
+    // Map WMO codes to OpenWeatherMap icon codes for compatibility
+    if (code === 0) return "01d"; // Clear sky
+    if (code >= 1 && code <= 3) return "02d"; // Partly cloudy
+    if (code >= 45 && code <= 48) return "50d"; // Fog
+    if (code >= 51 && code <= 55) return "09d"; // Drizzle
+    if (code >= 56 && code <= 57) return "09d"; // Freezing drizzle
+    if (code >= 61 && code <= 65) return "10d"; // Rain
+    if (code >= 66 && code <= 67) return "13d"; // Freezing rain
+    if (code >= 71 && code <= 75) return "13d"; // Snow
+    if (code === 77) return "13d"; // Snow grains
+    if (code >= 80 && code <= 82) return "09d"; // Rain showers
+    if (code >= 85 && code <= 86) return "13d"; // Snow showers
+    if (code >= 95 && code <= 99) return "11d"; // Thunderstorm
+    return "50d"; // Default
+  };
 
   const getPriceTrend = () => {
     const currentData = priceData[selectedPeriod];
@@ -154,7 +218,7 @@ const GreetingInfo: React.FC = () => {
     setSelectedPeriod(period);
   };
 
-  if (loading) {
+  if (loading && !weatherError) {
     return (
       <div className="p-4 mb-4 bg-[#171717] rounded-lg animate-pulse">
         <div className="h-6 bg-[#222] rounded w-3/4 mb-2"></div>
@@ -235,7 +299,13 @@ const GreetingInfo: React.FC = () => {
               </div>
             </div>
           ) : (
-            <p className="text-xl font-semibold text-white">Carregando...</p>
+            <div className="flex items-center text-gray-400">
+              <CloudOff className="w-8 h-8 mr-2" />
+              <div>
+                <p className="text-lg font-medium">Informações de clima indisponíveis</p>
+                <p className="text-sm">Não foi possível obter dados meteorológicos</p>
+              </div>
+            </div>
           )}
         </div>
       </div>
