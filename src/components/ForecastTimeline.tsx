@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Sun, CloudSun, Cloud, CloudRain, CloudSnow, CloudFog, CloudLightning } from 'lucide-react';
 
 interface ForecastDataPoint {
@@ -38,7 +38,7 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
           // Get current hour to show forecast from now onwards
           const currentHour = new Date().getHours();
           
-          // Format the data for the chart - showing 24 hours
+          // Format the data for the chart - now showing 24 hours
           const formattedData = data.hourly.time
             .slice(currentHour, currentHour + 24) // Get next 24 hours from current hour
             .map((time: string, index: number) => {
@@ -110,84 +110,52 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
     return null;
   };
 
-  const getWeatherDescription = (code: number) => {
-    if (code === 0) return "Clear Sky";
-    if (code >= 1 && code <= 3) return "Partly Cloudy";
-    if (code >= 45 && code <= 48) return "Foggy";
-    if (code >= 51 && code <= 67) return "Rainy";
-    if (code >= 71 && code <= 77) return "Snowy";
-    if (code >= 80 && code <= 82) return "Rain Showers";
-    if (code >= 85 && code <= 86) return "Snow Showers";
-    if (code >= 95 && code <= 99) return "Thunderstorm";
-    return "Cloudy";
-  };
-
   return (
-    <div className="w-full flex flex-col">
-      <h3 className="text-lg font-medium text-gray-200 mb-2">24-Hour Weather Forecast</h3>
-      <div className="w-full h-32 mt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={forecastData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-            <XAxis 
-              dataKey="formattedTime" 
-              tick={{ fill: '#888', fontSize: 10 }}
-              stroke="#444"
-              tickLine={false}
-              axisLine={false}
-              minTickGap={30}
-            />
-            <YAxis 
-              domain={['auto', 'auto']}
-              tick={{ fill: '#888', fontSize: 10 }}
-              stroke="#444"
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `${Math.round(value)}°C`}
-              width={40}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              payload={[{ value: 'Temperature (°C)', type: 'line', color: '#33C3F0' }]}
-              verticalAlign="top"
-              height={20}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="temperature" 
-              stroke="#33C3F0" 
-              strokeWidth={2}
-              dot={(props) => {
-                if (!props || !props.payload) return null;
-                const weatherCode = props.payload.weatherCode;
-                return (
-                  <g transform={`translate(${props.cx},${props.cy})`} key={props.index}>
-                    <circle r={4} fill="#33C3F0" />
-                    <foreignObject width="12" height="12" x="-6" y="-6">
-                      <div className="flex items-center justify-center">
-                        {getWeatherIcon(weatherCode)}
-                      </div>
-                    </foreignObject>
-                  </g>
-                );
-              }}
-              activeDot={{ r: 6, fill: '#33C3F0', stroke: '#1c1c1c', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      {forecastData.length > 0 && (
-        <div className="flex flex-row flex-wrap mt-3 gap-2">
-          {forecastData.filter((_, i) => i % 4 === 0).map((data, index) => (
-            <div key={index} className="flex flex-col items-center bg-gray-800/50 rounded-md p-2">
-              <div className="text-xs text-gray-400">{data.formattedTime}</div>
-              <div className="mt-1">{getWeatherIcon(data.weatherCode)}</div>
-              <div className="text-xs mt-1 text-blue-400">{data.temperature.toFixed(1)}°C</div>
-              <div className="text-xs text-gray-500">{getWeatherDescription(data.weatherCode)}</div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="w-full h-24 mt-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={forecastData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+          <XAxis 
+            dataKey="formattedTime" 
+            tick={{ fill: '#888', fontSize: 10 }}
+            stroke="#444"
+            tickLine={false}
+            axisLine={false}
+            minTickGap={30}
+          />
+          <YAxis 
+            domain={['auto', 'auto']}
+            tick={{ fill: '#888', fontSize: 10 }}
+            stroke="#444"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => `${Math.round(value)}°C`}
+            width={40}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Line 
+            type="monotone" 
+            dataKey="temperature" 
+            stroke="#33C3F0" 
+            strokeWidth={2}
+            dot={(props) => {
+              if (!props || !props.payload) return null;
+              const weatherCode = props.payload.weatherCode;
+              return (
+                <g transform={`translate(${props.cx},${props.cy})`} key={props.index}>
+                  <circle r={4} fill="#33C3F0" />
+                  <foreignObject width="12" height="12" x="-6" y="-6">
+                    <div className="flex items-center justify-center">
+                      {getWeatherIcon(weatherCode)}
+                    </div>
+                  </foreignObject>
+                </g>
+              );
+            }}
+            activeDot={{ r: 6, fill: '#33C3F0', stroke: '#1c1c1c', strokeWidth: 2 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
