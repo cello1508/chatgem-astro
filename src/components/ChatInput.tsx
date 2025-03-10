@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -53,8 +52,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     
     holdTimerRef.current = setInterval(() => {
       setHoldProgress(prev => {
-        // 100% in 1.5 seconds (15 steps of 100ms)
-        const newProgress = prev + (100 / 15);
+        // 100% in 2 seconds (20 steps of 100ms)
+        const newProgress = prev + (100 / 20);
         
         if (newProgress >= 100) {
           // Clear the interval when we reach 100%
@@ -63,7 +62,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
             holdTimerRef.current = null;
           }
           
-          // Expand after 1.5 seconds
+          // Expand after 2 seconds
           setIsExpanded(true);
           setIsHolding(false);
           return 0;
@@ -194,23 +193,40 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           </p>
         </form>
         
-        <CollapsibleContent className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-700 ease-in-out animate-accordion-down transform origin-top">
+        <CollapsibleContent 
+          className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-1000 ease-out animate-accordion-down transform origin-top"
+        >
           {/* New chat button */}
-          <button className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3 transform hover:scale-[1.02] active:scale-100 duration-300 animate-slide-in">
+          <button 
+            className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3 transform hover:scale-[1.02] active:scale-100 duration-300 animate-slide-in" 
+            style={{ animationDuration: '0.8s', animationDelay: '0.1s' }}
+          >
             <Plus size={18} />
             <span>Nova conversa</span>
           </button>
           
           {/* Conversation history */}
-          <div className="space-y-1 max-h-[200px] overflow-y-auto animate-fade-in" style={{ animationDelay: "50ms" }}>
-            <h3 className="text-sm text-gray-400 mb-2 px-2">Histórico de conversas</h3>
+          <div 
+            className="space-y-1 max-h-[200px] overflow-y-auto animate-fade-in" 
+            style={{ animationDuration: '1s', animationDelay: "0.3s" }}
+          >
+            <h3 
+              className="text-sm text-gray-400 mb-2 px-2 animate-fade-in" 
+              style={{ animationDuration: '0.8s', animationDelay: "0.4s" }}
+            >
+              Histórico de conversas
+            </h3>
             <div className="space-y-1">
               {conversations.map((convo, index) => (
                 <button
                   key={convo.id}
                   className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all transform hover:translate-x-1 hover:bg-gray-700/50 duration-300 animate-slide-in"
                   onClick={handleClosePanel}
-                  style={{ animationDelay: `${(index + 1) * 75}ms` }}
+                  style={{ 
+                    animationDuration: '0.8s',
+                    animationDelay: `${0.5 + (index * 0.15)}s`,
+                    transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                  }}
                 >
                   <MessageSquare size={16} className="mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
