@@ -50,7 +50,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     
     holdTimerRef.current = setInterval(() => {
       setHoldProgress(prev => {
-        const newProgress = prev + (100 / 20); // 100% in 2 seconds (20 steps of 100ms)
+        // 100% in 1.5 seconds (15 steps of 100ms)
+        const newProgress = prev + (100 / 15);
         
         if (newProgress >= 100) {
           // Clear the interval when we reach 100%
@@ -59,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
             holdTimerRef.current = null;
           }
           
-          // Expand after 2 seconds
+          // Expand after 1.5 seconds
           setIsExpanded(true);
           setIsHolding(false);
           return 0;
@@ -78,6 +79,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     }
     setIsHolding(false);
     setHoldProgress(0);
+  };
+
+  // Handle clicking outside to close the expanded panel
+  const handleClosePanel = () => {
+    setIsExpanded(false);
   };
 
   // Clean up interval on unmount
@@ -135,7 +141,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                   
                   {isHolding && (
                     <svg
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7"
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 transition-all"
                       viewBox="0 0 24 24"
                       strokeWidth="2"
                       stroke="currentColor"
@@ -152,6 +158,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                         strokeWidth="2"
                         strokeDasharray={`${holdProgress * 0.63} 100`}
                         transform="rotate(-90 12 12)"
+                        className="transition-all duration-100 ease-linear"
                       />
                     </svg>
                   )}
@@ -189,6 +196,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
               <button
                 key={convo.id}
                 className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all"
+                onClick={handleClosePanel}
               >
                 <MessageSquare size={16} className="mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
