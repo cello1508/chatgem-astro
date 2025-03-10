@@ -20,6 +20,11 @@ interface PriceData {
   previousPrice: number | null;
 }
 
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 const GreetingInfo: React.FC = () => {
   const [priceData, setPriceData] = useState<Record<TimePeriod, PriceData>>({
     '1h': { currentPrice: null, previousPrice: null },
@@ -31,7 +36,30 @@ const GreetingInfo: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          toast({
+            title: "Erro na localização",
+            description: "Não foi possível obter sua localização. Usando localização padrão.",
+            variant: "destructive",
+          });
+        }
+      );
+    }
+  }, [toast]);
 
   useEffect(() => {
     const handleMessageSent = () => {
@@ -70,8 +98,12 @@ const GreetingInfo: React.FC = () => {
     };
 
     const fetchWeather = async () => {
+      if (!userLocation) return;
+      
       try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Sao Paulo,br&units=metric&appid=4331036eb3b754b61040c7f1116dd796`);
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.latitude}&lon=${userLocation.longitude}&units=metric&appid=4331036eb3b754b61040c7f1116dd796`
+        );
         const data = await response.json();
         setWeatherData(data);
       } catch (error) {
@@ -87,13 +119,15 @@ const GreetingInfo: React.FC = () => {
     };
 
     fetchBtcPrice();
-    fetchWeather();
+    if (userLocation) {
+      fetchWeather();
+    }
 
     const btcInterval = setInterval(fetchBtcPrice, 10000);
     return () => {
       clearInterval(btcInterval);
     };
-  }, [toast, selectedPeriod]);
+  }, [toast, selectedPeriod, userLocation]);
 
   const getPriceTrend = () => {
     const currentData = priceData[selectedPeriod];
@@ -185,7 +219,7 @@ const GreetingInfo: React.FC = () => {
         </div>
         
         <div className="bg-[#1f1f1f] p-4 rounded-md">
-          <p className="text-sm text-gray-400">Clima em {weatherData?.name || "São Paulo"}</p>
+          <p className="text-sm text-gray-400">Clima em {weatherData?.name || "sua região"}</p>
           {weatherData && weatherData.weather && weatherData.weather.length > 0 ? (
             <div className="flex items-center">
               {weatherData.weather[0]?.icon && (
@@ -201,7 +235,7 @@ const GreetingInfo: React.FC = () => {
               </div>
             </div>
           ) : (
-            <p className="text-xl font-semibold text-white">Indisponível</p>
+            <p className="text-xl font-semibold text-white">Carregando...</p>
           )}
         </div>
       </div>
