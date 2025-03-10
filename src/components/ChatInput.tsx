@@ -20,6 +20,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
     { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
+    { id: '4', title: 'Dúvidas sobre TypeScript', date: '7 Jun' },
+    { id: '5', title: 'Otimização de performance', date: '5 Jun' },
+    { id: '6', title: 'Implementação de API REST', date: '3 Jun' },
+    { id: '7', title: 'Arquitetura de microsserviços', date: '1 Jun' },
+    { id: '8', title: 'Debug de aplicações React', date: '30 Mai' },
+    { id: '9', title: 'Testes automatizados', date: '28 Mai' },
+    { id: '10', title: 'Integração contínua', date: '26 Mai' },
+    { id: '11', title: 'Design system com Tailwind', date: '24 Mai' },
+    { id: '12', title: 'Animações com Framer Motion', date: '22 Mai' },
+    { id: '13', title: 'Estratégias de SEO', date: '20 Mai' },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -209,7 +219,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                   onClick={handleClosePanel}
                   style={{ 
                     animationDuration: '3s',
-                    animationDelay: `${2 + (index * 0.6)}s`,
+                    animationDelay: `${2 + (index * 0.2)}s`,
                     transition: 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
                   }}
                 >
