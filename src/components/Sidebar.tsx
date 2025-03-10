@@ -1,8 +1,13 @@
-
 import React, { useState } from 'react';
 import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Headphones, Sun, Moon } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 import { useTheme } from '@/hooks/use-theme';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   onClose: () => void;
@@ -17,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
 
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const sections = [
     { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
@@ -29,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
   ];
 
   return (
-    <div className="h-full w-[280px] bg-[#0F0F0F] flex flex-col">
+    <div className="h-full w-[280px] bg-sidebar flex flex-col">
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b border-gray-800">
         <h2 className="font-medium">Productivity AI</h2>
@@ -98,7 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         <ProductivityChart />
       </div>
 
-      {/* Footer */}
+      {/* Footer with Theme Selector */}
       <div className="p-4 border-t border-gray-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -107,17 +112,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
             </div>
             <div className="text-sm">Usuário</div>
           </div>
-          <button 
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-gray-700/50 transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <Sun size={18} className="text-gray-300" />
-            ) : (
-              <Moon size={18} className="text-gray-300" />
-            )}
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 rounded-full hover:bg-gray-700/50 transition-colors">
+                <div className="w-5 h-5 rounded-full border-2 border-current" style={{
+                  backgroundColor: theme === 'light' ? '#fff' : theme === 'dark' ? '#0F0F0F' : '#9b87f5'
+                }} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme('light')}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('purple')}>
+                Purple
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
