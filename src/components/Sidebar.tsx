@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock } from 'lucide-react';
+import ProductivityChart from './ProductivityChart';
 
 interface SidebarProps {
   onClose: () => void;
@@ -83,8 +84,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         </>
       )}
 
+      {/* Productivity Chart */}
+      <div className="mt-auto px-3 pb-3">
+        <ProductivityChart />
+      </div>
+
       {/* Footer */}
-      <div className="mt-auto p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-gray-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
             <span className="text-sm font-semibold">U</span>

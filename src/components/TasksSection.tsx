@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { Check, Plus, Trash2 } from 'lucide-react';
+import { Check, Plus, Trash2, Share } from 'lucide-react';
+import { toast } from "sonner";
 
 interface Task {
   id: string;
@@ -41,12 +41,58 @@ const TasksSection: React.FC = () => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
+  const handleShareTasks = () => {
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const pendingTasks = tasks.length - completedTasks;
+    const completion = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+    
+    // Generate a simple text retrospective
+    const retrospective = 
+      `📋 Minha Retrospectiva de Tarefas 📋\n\n` +
+      `Progresso: ${completion}% concluído\n` +
+      `Tarefas completadas: ${completedTasks}\n` +
+      `Tarefas pendentes: ${pendingTasks}\n\n` +
+      `Tarefas concluídas:\n${tasks.filter(t => t.completed).map(t => `✓ ${t.text}`).join('\n')}\n\n` +
+      `Gerado pelo Productivity AI 🚀`;
+    
+    navigator.clipboard.writeText(retrospective).then(() => {
+      toast.success("Retrospectiva de tarefas copiada para a área de transferência!");
+    });
+  };
+
   return (
     <div className="max-w-3xl mx-auto w-full h-full flex flex-col">
       <div className="p-6 flex-1 overflow-auto">
-        <h1 className="text-2xl font-bold mb-6">Tarefas</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Tarefas</h1>
+          <button
+            onClick={handleShareTasks}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-success/20 text-success hover:bg-success/30 transition-colors"
+          >
+            <Share size={16} />
+            Compartilhar
+          </button>
+        </div>
         
-        {/* Add task form */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-400">Progresso</span>
+            <span className="text-sm text-success">
+              {tasks.filter(t => t.completed).length}/{tasks.length} tarefas
+            </span>
+          </div>
+          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-success transition-all duration-500 ease-out"
+              style={{ 
+                width: `${tasks.length > 0 
+                  ? (tasks.filter(t => t.completed).length / tasks.length) * 100 
+                  : 0}%` 
+              }}
+            />
+          </div>
+        </div>
+        
         <form onSubmit={handleAddTask} className="mb-6">
           <div className="glass-input rounded-xl overflow-hidden flex items-center transition-all focus-within:border-success/50 focus-within:shadow-[0_0_10px_rgba(56,215,132,0.15)]">
             <input
@@ -68,7 +114,6 @@ const TasksSection: React.FC = () => {
           </div>
         </form>
 
-        {/* Tasks list */}
         <div className="space-y-3">
           {tasks.map(task => (
             <div 
