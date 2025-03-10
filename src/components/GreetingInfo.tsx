@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff, MapPin } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff, MapPin, GripHorizontal } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import BitcoinChart from './BitcoinChart';
 import ForecastTimeline from './ForecastTimeline';
+import FearGreedIndex from './FearGreedIndex';
 
 interface WeatherData {
   main?: {
@@ -52,6 +52,9 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [weatherError, setWeatherError] = useState(false);
   const [regionName, setRegionName] = useState<string | null>(null);
+  const [isWidgetDragging, setIsWidgetDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState(0);
+  const [showFearGreedIndex, setShowFearGreedIndex] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,7 +66,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             longitude: position.coords.longitude,
           });
           
-          // Get region name from coordinates
           fetchRegionName(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
@@ -141,7 +143,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
       } catch (error) {
         console.error('Error fetching BTC price:', error);
         
-        // Fallback to Binance API if CoinCap fails
         try {
           const binanceResponse = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
           const binanceData = await binanceResponse.json();
@@ -214,6 +215,42 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
       clearInterval(btcInterval);
     };
   }, [toast, selectedPeriod, userLocation, regionName]);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    setIsWidgetDragging(true);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+  };
+
+  const handleDragMove = (e: MouseEvent) => {
+    if (!isWidgetDragging) return;
+    
+    const container = document.querySelector('.draggable-container');
+    if (!container) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    
+    const newPosition = Math.max(0, Math.min(100, ((e.clientX - containerRect.left) / containerWidth) * 100));
+    
+    setDragPosition(newPosition);
+    
+    setShowFearGreedIndex(newPosition > 20);
+  };
+
+  const handleDragEnd = () => {
+    setIsWidgetDragging(false);
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragEnd);
+    
+    if (dragPosition > 40) {
+      setDragPosition(100);
+      setShowFearGreedIndex(true);
+    } else {
+      setDragPosition(0);
+      setShowFearGreedIndex(false);
+    }
+  };
 
   const getWeatherDescription = (code: number): string => {
     if (code === 0) return "Céu limpo";
@@ -290,59 +327,78 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   return (
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className={`bg-[#1f1f1f] p-4 rounded-md transition-colors duration-500 ${
-          hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
-          hasMessageBeenSent && priceTrend === 'down' ? 'bg-red-500/10' : ''
-        }`}>
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
-            <div className="flex space-x-2">
-              {(['1h', '7d', '1m', '1y'] as TimePeriod[]).map((period) => (
-                <button
-                  key={period}
-                  onClick={() => handlePeriodChange(period)}
-                  className={`px-2 py-1 text-xs rounded-md transition-colors ${
-                    selectedPeriod === period 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#333]'
-                  }`}
-                >
-                  {period}
-                </button>
-              ))}
+        <div className="relative overflow-hidden draggable-container">
+          <div 
+            className={`bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 absolute inset-0 transform ${
+              hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
+              hasMessageBeenSent && priceTrend === 'down' ? 'bg-red-500/10' : ''
+            }`}
+            style={{ transform: `translateX(-${dragPosition}%)` }}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
+              <div className="flex space-x-2">
+                {(['1h', '7d', '1m', '1y'] as TimePeriod[]).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => handlePeriodChange(period)}
+                    className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                      selectedPeriod === period 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#333]'
+                    }`}
+                  >
+                    {period}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          {currentPrice ? (
-            <div className="flex items-center">
-              <div>
-                <p className={`text-xl font-semibold transition-colors duration-500 ${
-                  priceTrend === 'up' ? 'text-green-500' : 
-                  priceTrend === 'down' ? 'text-red-500' : 'text-white'
-                }`}>
-                  ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-                {percentChange && (
-                  <p className={`text-sm transition-colors duration-500 ${
+            {currentPrice ? (
+              <div className="flex items-center">
+                <div>
+                  <p className={`text-xl font-semibold transition-colors duration-500 ${
                     priceTrend === 'up' ? 'text-green-500' : 
                     priceTrend === 'down' ? 'text-red-500' : 'text-white'
                   }`}>
-                    {priceTrend === 'up' ? '+' : ''}{percentChange}%
+                    ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
+                  {percentChange && (
+                    <p className={`text-sm transition-colors duration-500 ${
+                      priceTrend === 'up' ? 'text-green-500' : 
+                      priceTrend === 'down' ? 'text-red-500' : 'text-white'
+                    }`}>
+                      {priceTrend === 'up' ? '+' : ''}{percentChange}%
+                    </p>
+                  )}
+                </div>
+                {priceTrend === 'up' && (
+                  <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
+                )}
+                {priceTrend === 'down' && (
+                  <TrendingDown className="ml-2 h-5 w-5 text-red-500 animate-fade-in" />
                 )}
               </div>
-              {priceTrend === 'up' && (
-                <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
-              )}
-              {priceTrend === 'down' && (
-                <TrendingDown className="ml-2 h-5 w-5 text-red-500 animate-fade-in" />
-              )}
-            </div>
-          ) : (
-            <p className="text-xl font-semibold text-white">Indisponível</p>
-          )}
+            ) : (
+              <p className="text-xl font-semibold text-white">Indisponível</p>
+            )}
+            
+            <BitcoinChart period={selectedPeriod} priceTrend={priceTrend} />
+          </div>
           
-          {/* Bitcoin Chart */}
-          <BitcoinChart period={selectedPeriod} priceTrend={priceTrend} />
+          <div 
+            className="bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 absolute inset-0 transform"
+            style={{ transform: `translateX(${100 - dragPosition}%)` }}
+          >
+            <FearGreedIndex />
+          </div>
+          
+          <div 
+            className="absolute right-0 top-0 bottom-0 w-6 bg-gray-800/50 hover:bg-gray-700/50 flex items-center justify-center cursor-grab z-10 rounded-r-md"
+            onMouseDown={handleDragStart}
+            style={{ transform: `translateX(-${dragPosition}%)` }}
+          >
+            <GripHorizontal className="w-4 h-4 text-gray-400" />
+          </div>
         </div>
         
         <div className="bg-[#1f1f1f] p-4 rounded-md">
@@ -377,7 +433,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             </div>
           )}
           
-          {/* Weather Forecast Timeline */}
           {userLocation && (
             <>
               <p className="text-sm text-gray-400 mt-4 mb-1">Previsão para hoje</p>
