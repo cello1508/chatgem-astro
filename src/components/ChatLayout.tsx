@@ -28,6 +28,9 @@ const ChatLayout: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
 
+  // Check if any user messages exist
+  const hasUserMessages = messages.some(message => message.role === 'user');
+
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     
@@ -96,9 +99,11 @@ const ChatLayout: React.FC = () => {
       default:
         return (
           <>
-            <div className="px-4 md:px-8 pt-4">
-              <GreetingInfo />
-            </div>
+            {!hasUserMessages && (
+              <div className="px-4 md:px-8 pt-4">
+                <GreetingInfo />
+              </div>
+            )}
             <MessageList messages={messages} isTyping={isTyping} />
             <div className="p-4 pb-6 w-full">
               <ChatInput onSendMessage={handleSendMessage} disabled={isTyping} />
