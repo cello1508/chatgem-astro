@@ -151,10 +151,12 @@ const ChatLayout: React.FC = () => {
               <CollapsibleContent className="mt-2">
                 <div className="overflow-hidden rounded-xl bg-[#8B1F60] text-white">
                   <iframe 
-                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
+                    style={{borderRadius: "12px"}} 
+                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator&theme=0" 
                     width="100%" 
-                    height="352" 
+                    height="152" 
                     frameBorder="0" 
+                    allowFullScreen 
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
                     loading="lazy"
                     title="Spotify Playlist"
@@ -187,14 +189,6 @@ const ChatLayout: React.FC = () => {
                       <Repeat size={18} className="text-white/80" />
                     </button>
                   </div>
-                  
-                  <div className="w-full px-4 pb-4 bg-[#6D1A4D]">
-                    <div className="w-full h-1 bg-white/20 rounded-full">
-                      <div className="w-1/2 h-1 bg-white rounded-full relative">
-                        <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 rounded-full bg-white"></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -210,4 +204,3 @@ const ChatLayout: React.FC = () => {
 };
 
 export default ChatLayout;
-
