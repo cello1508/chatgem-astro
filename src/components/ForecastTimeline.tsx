@@ -38,9 +38,9 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
           // Get current hour to show forecast from now onwards
           const currentHour = new Date().getHours();
           
-          // Format the data for the chart
+          // Format the data for the chart - now showing 24 hours
           const formattedData = data.hourly.time
-            .slice(currentHour, currentHour + 12) // Get next 12 hours from current hour
+            .slice(currentHour, currentHour + 24) // Get next 24 hours from current hour
             .map((time: string, index: number) => {
               const timeDate = new Date(time);
               return {
@@ -139,9 +139,10 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
             stroke="#33C3F0" 
             strokeWidth={2}
             dot={(props) => {
+              if (!props || !props.payload) return null;
               const weatherCode = props.payload.weatherCode;
               return (
-                <g transform={`translate(${props.cx},${props.cy})`}>
+                <g transform={`translate(${props.cx},${props.cy})`} key={props.index}>
                   <circle r={4} fill="#33C3F0" />
                   <foreignObject width="12" height="12" x="-6" y="-6">
                     <div className="flex items-center justify-center">
