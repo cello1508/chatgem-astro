@@ -182,7 +182,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           </p>
         </form>
         
-        <CollapsibleContent className="glass rounded-xl p-3 mt-3 border border-gray-800/50">
+        <CollapsibleContent className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-300 ease-in-out animate-accordion-down">
           {/* New chat button */}
           <button className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3">
             <Plus size={18} />
