@@ -31,7 +31,7 @@ const ChatLayout: React.FC = () => {
   // Check if any user messages exist
   const hasUserMessages = messages.some(message => message.role === 'user');
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, modelId?: string) => {
     if (!content.trim()) return;
     
     const userMessageId = Date.now().toString();
@@ -47,13 +47,15 @@ const ChatLayout: React.FC = () => {
     setIsTyping(true);
     
     try {
-      const webhookResponse = await webhookService.sendMessage(content);
+      // Pass the modelId to the webhookService
+      const webhookResponse = await webhookService.sendMessage(content, modelId);
       
       const assistantMessage: MessageType = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: webhookResponse.answer || "Desculpe, não consegui processar sua pergunta. Tente novamente.",
         timestamp: new Date().toISOString(),
+        modelId: modelId, // Store the model ID with the message
       };
       
       setMessages(prev => [...prev, assistantMessage]);

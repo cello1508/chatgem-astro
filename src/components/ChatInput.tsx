@@ -1,19 +1,35 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
+import { Send, Plus, ChevronUp, ChevronDown, MessageSquare, Zap } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, modelId?: string) => void;
   disabled?: boolean;
 }
+
+// Define available models
+const llmModels = [
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'Modelo mais avançado' },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Equilibrado: velocidade e precisão' },
+  { id: 'claude-3', name: 'Claude 3', description: 'Excelente em raciocínio e contexto' },
+  { id: 'gemini-pro', name: 'Gemini Pro', description: 'Ótimo para tarefas criativas' },
+];
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Adicionando o histórico de conversas que foi removido do Sidebar
+  // Histórico de conversas
   const conversations = [
     { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
     { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
@@ -23,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
-      onSendMessage(message);
+      onSendMessage(message, selectedModel);
       setMessage('');
       
       // Dispatch custom event when a message is sent
@@ -54,7 +70,71 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         onOpenChange={setIsExpanded}
         className="w-full mb-4"
       >
-        <CollapsibleContent className="glass rounded-xl p-3 mb-3 border border-gray-800/50">
+        <form onSubmit={handleSubmit} className="relative">
+          {/* Model selector above the input */}
+          <div className="flex justify-end mb-2">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-auto min-w-[180px] text-xs h-8 bg-gray-800/70 border-gray-700">
+                <div className="flex items-center gap-2">
+                  <Zap size={14} className="text-success" />
+                  <SelectValue placeholder="Selecione o modelo" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                {llmModels.map((model) => (
+                  <SelectItem key={model.id} value={model.id} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                    <div className="flex flex-col">
+                      <span>{model.name}</span>
+                      <span className="text-xs text-gray-400">{model.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="glass-input rounded-xl overflow-hidden transition-all focus-within:border-success/50 focus-within:shadow-[0_0_10px_rgba(56,215,132,0.15)]">
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Escreva uma mensagem..."
+                disabled={disabled}
+                className="w-full resize-none bg-transparent px-4 py-3.5 pr-12 text-gray-100 focus:outline-none placeholder:text-gray-500 disabled:opacity-50 max-h-[200px] min-h-[56px]"
+                rows={1}
+              />
+              <div className="absolute right-12 bottom-3">
+                <CollapsibleTrigger asChild>
+                  <button
+                    type="button"
+                    className="p-1.5 rounded-lg transition-all hover:bg-gray-700/30"
+                    title={isExpanded ? "Esconder opções" : "Mostrar opções"}
+                  >
+                    {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                  </button>
+                </CollapsibleTrigger>
+              </div>
+              <button
+                type="submit"
+                disabled={!message.trim() || disabled}
+                className={`absolute right-2 bottom-2.5 p-1.5 rounded-lg transition-all ${
+                  message.trim() && !disabled
+                    ? 'bg-success text-black'
+                    : 'bg-gray-700 text-gray-400'
+                }`}
+              >
+                <Send size={18} />
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            Este é um assistente de simulação. Respostas são fictícias.
+          </p>
+        </form>
+        
+        <CollapsibleContent className="glass rounded-xl p-3 mt-3 border border-gray-800/50">
           {/* New chat button */}
           <button className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3">
             <Plus size={18} />
@@ -78,48 +158,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
             ))}
           </div>
         </CollapsibleContent>
-        
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="glass-input rounded-xl overflow-hidden transition-all focus-within:border-success/50 focus-within:shadow-[0_0_10px_rgba(56,215,132,0.15)]">
-            <div className="relative">
-              <textarea
-                ref={textareaRef}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Escreva uma mensagem..."
-                disabled={disabled}
-                className="w-full resize-none bg-transparent px-4 py-3.5 pr-12 text-gray-100 focus:outline-none placeholder:text-gray-500 disabled:opacity-50 max-h-[200px] min-h-[56px]"
-                rows={1}
-              />
-              <div className="absolute right-12 bottom-3">
-                <CollapsibleTrigger asChild>
-                  <button
-                    type="button"
-                    className="p-1.5 rounded-lg transition-all hover:bg-gray-700/30"
-                    title={isExpanded ? "Esconder histórico" : "Mostrar histórico"}
-                  >
-                    {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-                  </button>
-                </CollapsibleTrigger>
-              </div>
-              <button
-                type="submit"
-                disabled={!message.trim() || disabled}
-                className={`absolute right-2 bottom-2.5 p-1.5 rounded-lg transition-all ${
-                  message.trim() && !disabled
-                    ? 'bg-success text-black'
-                    : 'bg-gray-700 text-gray-400'
-                }`}
-              >
-                <Send size={18} />
-              </button>
-            </div>
-          </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Este é um assistente de simulação. Respostas são fictícias.
-          </p>
-        </form>
       </Collapsible>
     </div>
   );
