@@ -151,7 +151,7 @@ const ChatLayout: React.FC = () => {
               <CollapsibleContent className="mt-2">
                 <div className="overflow-hidden rounded-xl bg-[#8B1F60] text-white">
                   <iframe 
-                    style={{borderRadius: "12px"}} 
+                    style={{borderRadius:"12px"}} 
                     src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator&theme=0" 
                     width="100%" 
                     height="152" 
