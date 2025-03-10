@@ -11,12 +11,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSection }) => {
-  const [conversations, setConversations] = useState([
-    { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
-    { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
-    { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
-  ]);
-
   const [pluginDialogOpen, setPluginDialogOpen] = useState(false);
 
   const sections = [
@@ -74,33 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
           ))}
         </nav>
       </div>
-
-      {/* Section Content - only show if chat is active */}
-      {activeSection === 'chat' && (
-        <div className="overflow-y-auto" style={{ flex: '1 1 auto' }}>
-          {/* New chat button */}
-          <button className="mx-3 mt-3 bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all">
-            <Plus size={18} />
-            <span>Nova conversa</span>
-          </button>
-
-          {/* Conversation list */}
-          <div className="flex-1 overflow-y-auto py-3 px-2">
-            {conversations.map((convo) => (
-              <button
-                key={convo.id}
-                className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 mb-1 flex items-start gap-2 transition-all"
-              >
-                <MessageSquare size={16} className="mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{convo.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{convo.date}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Productivity Chart container */}
       <div className="relative mb-16" style={{ height: '100px' }}>
