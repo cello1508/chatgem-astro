@@ -93,21 +93,24 @@ const GreetingInfo: React.FC = () => {
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
       <h2 className="text-xl font-medium text-white mb-3">Olá, bom dia!</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[#1f1f1f] p-4 rounded-md">
+        <div className={`bg-[#1f1f1f] p-4 rounded-md transition-colors duration-500 ${
+          priceTrend === 'up' ? 'bg-green-500/10' : 
+          priceTrend === 'down' ? 'bg-red-500/10' : ''
+        }`}>
           <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
           {btcPrice ? (
             <div className="flex items-center">
-              <p className={`text-xl font-semibold ${
-                priceTrend === 'up' ? 'text-green-500' : 
-                priceTrend === 'down' ? 'text-red-500' : 'text-white'
+              <p className={`text-xl font-semibold transition-colors duration-500 ${
+                priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
+                priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
               }`}>
                 ${btcPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               {priceTrend === 'up' && (
-                <TrendingUp className="ml-2 h-5 w-5 text-green-500" />
+                <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
               )}
               {priceTrend === 'down' && (
-                <TrendingDown className="ml-2 h-5 w-5 text-red-500" />
+                <TrendingDown className="ml-2 h-5 w-5 text-red-500 animate-fade-in" />
               )}
             </div>
           ) : (
