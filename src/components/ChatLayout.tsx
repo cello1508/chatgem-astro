@@ -12,6 +12,7 @@ import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
 import { Music } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
@@ -27,11 +28,7 @@ const ChatLayout: React.FC = () => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
-  const [playlistActive, setPlaylistActive] = useState(false);
-
-  const togglePlaylist = () => {
-    setPlaylistActive(!playlistActive);
-  };
+  const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -150,38 +147,40 @@ const ChatLayout: React.FC = () => {
             </button>
           )}
           
-          {/* Playlist button */}
+          {/* Playlist collapsible component */}
           <div className="ml-auto">
-            <button 
-              onClick={togglePlaylist}
-              className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${
-                playlistActive 
-                  ? 'bg-success/20 text-success' 
-                  : 'hover:bg-gray-700/50 text-gray-300'
-              }`}
-              title="Playlist de foco extremo"
+            <Collapsible
+              open={isPlaylistOpen}
+              onOpenChange={setIsPlaylistOpen}
+              className="w-[300px]"
             >
-              <Music size={18} />
-              <span className="text-sm">Playlist de foco extremo</span>
-            </button>
+              <CollapsibleTrigger asChild>
+                <div className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                  isPlaylistOpen 
+                    ? 'bg-success/20 text-success' 
+                    : 'hover:bg-gray-700/50 text-gray-300'
+                }`}>
+                  <Music size={18} />
+                  <span className="text-sm">Playlist de foco extremo</span>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="p-2 glass rounded-lg border border-gray-800/50 animate-fade-in">
+                  <iframe 
+                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
+                    width="100%" 
+                    height="352" 
+                    frameBorder="0" 
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                    loading="lazy"
+                    title="Spotify Playlist"
+                    className="rounded-md"
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </div>
-        
-        {/* Expanded Playlist UI - Only visible when playlist is active */}
-        {playlistActive && (
-          <div className="mx-4 p-4 glass rounded-lg border border-gray-800/50 animate-fade-in">
-            <div className="text-success text-sm font-medium mb-2 flex items-center gap-1.5">
-              <Music size={18} />
-              Playlist de foco extremo
-            </div>
-            <p className="text-xs text-gray-400 mb-3">Música para melhorar sua concentração e produtividade</p>
-            <div className="flex justify-center">
-              <button className="bg-success/10 hover:bg-success/20 text-success px-4 py-1.5 rounded text-sm transition-all">
-                Reproduzir agora
-              </button>
-            </div>
-          </div>
-        )}
         
         {/* Section content */}
         <div className="flex flex-col h-full">
