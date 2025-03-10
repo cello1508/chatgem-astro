@@ -1,8 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { TrendingUp, TrendingDown, CloudOff, MapPin } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import BitcoinChart from './BitcoinChart';
+import ForecastTimeline from './ForecastTimeline';
 
 interface WeatherData {
   main?: {
@@ -373,6 +375,17 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
                 <p className="text-sm">Não foi possível obter dados meteorológicos</p>
               </div>
             </div>
+          )}
+          
+          {/* Weather Forecast Timeline */}
+          {userLocation && (
+            <>
+              <p className="text-sm text-gray-400 mt-4 mb-1">Previsão para hoje</p>
+              <ForecastTimeline 
+                latitude={userLocation.latitude} 
+                longitude={userLocation.longitude} 
+              />
+            </>
           )}
         </div>
       </div>

@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar } from 'lucide-react';
 
 interface BitcoinDataPoint {
   timestamp: number;
@@ -84,14 +83,14 @@ const BitcoinChart: React.FC<ChartProps> = ({ period }) => {
 
   if (loading) {
     return (
-      <div className="animate-pulse flex flex-col space-y-3 w-full h-24">
+      <div className="animate-pulse flex flex-col space-y-3 w-full h-36">
         <div className="h-full w-full bg-gray-700/30 rounded-md"></div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-24 mt-2">
+    <div className="w-full h-36 mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
