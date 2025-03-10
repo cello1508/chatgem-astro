@@ -123,7 +123,7 @@ const ChatLayout: React.FC = () => {
       </div>
       
       <div className="flex flex-1 flex-col w-full">
-        <div className="sticky top-0 z-10 p-2 flex justify-between items-center glass">
+        <div className="sticky top-0 z-10 p-2 flex justify-between items-center glass w-full">
           {isMobile && (
             <button
               onClick={() => setShowSidebar(true)}
@@ -137,11 +137,11 @@ const ChatLayout: React.FC = () => {
             </button>
           )}
           
-          <div className="ml-auto">
+          <div className="ml-auto w-full max-w-full px-2">
             <Collapsible
               open={isPlaylistOpen}
               onOpenChange={setIsPlaylistOpen}
-              className="w-full max-w-[800px]"
+              className="w-full"
             >
               <CollapsibleTrigger asChild>
                 <div className="bg-[#1DB954]/20 hover:bg-[#1DB954]/30 px-4 py-2 rounded-full transition-all flex items-center gap-2 cursor-pointer">
@@ -149,8 +149,8 @@ const ChatLayout: React.FC = () => {
                   <span className="text-sm font-medium text-[#1DB954]">Playlist de foco extremo</span>
                 </div>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 w-full pr-1">
-                <SpotifyPlayer className="max-w-[800px]" />
+              <CollapsibleContent className="mt-2 w-full">
+                <SpotifyPlayer className="w-full" />
               </CollapsibleContent>
             </Collapsible>
           </div>
