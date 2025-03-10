@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
   ];
 
   return (
-    <div className="h-full w-[280px] glass flex flex-col">
+    <div className="h-full w-[280px] bg-[#0F0F0F] flex flex-col">
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b border-gray-800">
         <h2 className="font-medium">Productivity AI</h2>
@@ -41,20 +41,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
       {/* Sections */}
       <div className="p-3">
         <nav className="space-y-1">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => onChangeSection(section.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                activeSection === section.id 
-                  ? 'bg-success/20 text-success' 
-                  : 'hover:bg-gray-700/30'
-              }`}
-            >
-              <section.icon size={18} />
-              <span>{section.title}</span>
-            </button>
-          ))}
+          {sections.map((section) => {
+            const isActive = activeSection === section.id;
+            return (
+              <button
+                key={section.id}
+                onClick={() => onChangeSection(section.id)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  isActive
+                    ? section.id === 'tasks' 
+                      ? 'bg-[#2A3D2A] text-[#38D784]' 
+                      : 'bg-gray-800/50 text-white'
+                    : 'hover:bg-gray-700/30 text-white'
+                }`}
+              >
+                <section.icon size={18} />
+                <span>{section.title}</span>
+              </button>
+            );
+          })}
         </nav>
       </div>
 
