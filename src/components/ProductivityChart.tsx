@@ -57,9 +57,12 @@ const ProductivityChart: React.FC = () => {
   return (
     <>
       <div 
-        className="glass rounded-xl p-4 w-full transition-all duration-300 cursor-pointer"
+        className={`glass rounded-xl p-4 w-full transition-all duration-500 cursor-pointer relative z-10 ${
+          isHovered ? 'transform -translate-y-6' : ''
+        }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        style={{ transformOrigin: 'center bottom' }}
       >
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
@@ -76,15 +79,15 @@ const ProductivityChart: React.FC = () => {
         </div>
         
         <div className="flex justify-between items-center">
-          <div className={`transition-all duration-300 ${isHovered ? 'w-28 h-28 -mt-6 scale-110' : 'w-20 h-20'}`}>
+          <div className={`transition-all duration-500 ease-in-out ${isHovered ? 'w-32 h-32 -mt-3 scale-110' : 'w-20 h-20'}`}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={isHovered ? 35 : 25}
-                  outerRadius={isHovered ? 50 : 35}
+                  innerRadius={isHovered ? 40 : 25}
+                  outerRadius={isHovered ? 55 : 35}
                   paddingAngle={2}
                   dataKey="value"
                 >
@@ -101,7 +104,7 @@ const ProductivityChart: React.FC = () => {
           </div>
           
           <div className="flex-1 ml-2">
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+            <div className={`grid grid-cols-2 gap-x-2 gap-y-1 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-90'}`}>
               {data.map((item, index) => (
                 <div key={index} className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />

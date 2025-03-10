@@ -102,8 +102,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         </>
       )}
 
-      {/* Productivity Chart */}
-      <div className="mt-auto px-3 pb-3">
+      {/* Productivity Chart - now with extra margin to allow for expansion */}
+      <div className="mt-auto px-3 pb-3 pt-6 relative">
         <ProductivityChart />
       </div>
 
