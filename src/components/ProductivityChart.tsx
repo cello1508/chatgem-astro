@@ -119,6 +119,39 @@ const ProductivityChart: React.FC = () => {
               Compartilhe sua retrospectiva de produtividade nas redes sociais.
             </DialogDescription>
           </DialogHeader>
+          
+          {/* Chart in the dialog */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="w-32 h-32 mx-auto mb-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={35}
+                    outerRadius={55}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 mb-2">
+              {data.map((item, index) => (
+                <div key={index} className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs text-gray-300">{item.name}: {item.value}h</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
           <div className="bg-gray-800 rounded-md p-4 my-2 text-sm whitespace-pre-wrap">
             {retrospectiveText}
           </div>
