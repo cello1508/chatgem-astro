@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface WeatherData {
   main?: {
@@ -15,6 +16,7 @@ interface WeatherData {
 
 const GreetingInfo: React.FC = () => {
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
+  const [prevBtcPrice, setPrevBtcPrice] = useState<number | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -24,7 +26,10 @@ const GreetingInfo: React.FC = () => {
       try {
         const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
         const data = await response.json();
-        setBtcPrice(parseFloat(data.price));
+        const newPrice = parseFloat(data.price);
+        
+        setPrevBtcPrice(btcPrice); // Store previous price before updating
+        setBtcPrice(newPrice);
       } catch (error) {
         console.error('Error fetching BTC price:', error);
         toast({
@@ -64,7 +69,15 @@ const GreetingInfo: React.FC = () => {
     return () => {
       clearInterval(btcInterval);
     };
-  }, [toast]);
+  }, [toast, btcPrice]);
+
+  // Determine price trend
+  const getPriceTrend = () => {
+    if (!prevBtcPrice || !btcPrice) return 'neutral';
+    return btcPrice > prevBtcPrice ? 'up' : btcPrice < prevBtcPrice ? 'down' : 'neutral';
+  };
+
+  const priceTrend = getPriceTrend();
 
   if (loading) {
     return (
@@ -82,9 +95,20 @@ const GreetingInfo: React.FC = () => {
         <div className="bg-[#1f1f1f] p-4 rounded-md">
           <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
           {btcPrice ? (
-            <p className="text-xl font-semibold text-white">
-              ${btcPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            <div className="flex items-center">
+              <p className={`text-xl font-semibold ${
+                priceTrend === 'up' ? 'text-green-500' : 
+                priceTrend === 'down' ? 'text-red-500' : 'text-white'
+              }`}>
+                ${btcPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+              {priceTrend === 'up' && (
+                <TrendingUp className="ml-2 h-5 w-5 text-green-500" />
+              )}
+              {priceTrend === 'down' && (
+                <TrendingDown className="ml-2 h-5 w-5 text-red-500" />
+              )}
+            </div>
           ) : (
             <p className="text-xl font-semibold text-white">Indisponível</p>
           )}
