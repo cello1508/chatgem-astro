@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -10,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
-import { Music } from 'lucide-react';
+import { Music, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const ChatLayout: React.FC = () => {
@@ -28,6 +29,7 @@ const ChatLayout: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -168,6 +170,43 @@ const ChatLayout: React.FC = () => {
                   title="Spotify Playlist"
                   className="rounded-md animate-fade-in"
                 />
+                
+                {/* Player Controls */}
+                <div className="flex items-center justify-center space-x-4 mt-2 p-2 glass rounded-md">
+                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
+                    <Shuffle size={18} className="text-gray-300" />
+                  </button>
+                  
+                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
+                    <SkipBack size={20} className="text-gray-300" />
+                  </button>
+                  
+                  <button 
+                    className="p-2 hover:bg-gray-700/50 rounded-full transition-colors bg-gray-800/50"
+                    onClick={() => setIsPlaying(!isPlaying)}
+                  >
+                    {isPlaying ? 
+                      <Pause size={24} className="text-white" /> : 
+                      <Play size={24} className="text-white" />}
+                  </button>
+                  
+                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
+                    <SkipForward size={20} className="text-gray-300" />
+                  </button>
+                  
+                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
+                    <Repeat size={18} className="text-gray-300" />
+                  </button>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-full px-2 py-3">
+                  <div className="w-full h-1 bg-gray-700 rounded-full">
+                    <div className="w-1/2 h-1 bg-white rounded-full relative">
+                      <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 rounded-full bg-white"></div>
+                    </div>
+                  </div>
+                </div>
               </CollapsibleContent>
             </Collapsible>
           </div>
