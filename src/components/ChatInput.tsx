@@ -43,13 +43,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     }
   };
 
-  const handleMouseDown = () => {
+  const handleMouseEnter = () => {
+    // Start the hover timer when mouse enters
     setIsHolding(true);
     setHoldProgress(0);
     
     holdTimerRef.current = setInterval(() => {
       setHoldProgress(prev => {
-        const newProgress = prev + (100 / 30); // 100% in 3 seconds (30 steps of 100ms)
+        const newProgress = prev + (100 / 20); // 100% in 2 seconds (20 steps of 100ms)
         
         if (newProgress >= 100) {
           // Clear the interval when we reach 100%
@@ -58,7 +59,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
             holdTimerRef.current = null;
           }
           
-          // Expand after 3 seconds
+          // Expand after 2 seconds
           setIsExpanded(true);
           setIsHolding(false);
           return 0;
@@ -69,7 +70,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     }, 100);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseLeave = () => {
+    // Cancel the timer when mouse leaves
     if (holdTimerRef.current) {
       clearInterval(holdTimerRef.current);
       holdTimerRef.current = null;
@@ -118,9 +120,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
               <div className="absolute right-12 bottom-3">
                 <div 
                   className="relative"
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <CollapsibleTrigger asChild>
                     <button
