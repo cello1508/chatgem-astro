@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -34,7 +33,6 @@ const ChatLayout: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     
-    // Add user message
     const userMessageId = Date.now().toString();
     const userMessage: MessageType = {
       id: userMessageId,
@@ -45,14 +43,11 @@ const ChatLayout: React.FC = () => {
     
     setMessages(prev => [...prev, userMessage]);
     
-    // Simulate assistant typing
     setIsTyping(true);
     
     try {
-      // Enviar a mensagem para o webhook
       const webhookResponse = await webhookService.sendMessage(content);
       
-      // Adicionar resposta do assistente com base na resposta do webhook
       const assistantMessage: MessageType = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -62,7 +57,6 @@ const ChatLayout: React.FC = () => {
       
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      // Em caso de erro na chamada do webhook
       console.error('Erro ao processar mensagem:', error);
       toast({
         title: "Erro na comunicação",
@@ -70,7 +64,6 @@ const ChatLayout: React.FC = () => {
         variant: "destructive",
       });
       
-      // Adicionar mensagem de erro como resposta do assistente
       const errorMessage: MessageType = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -150,60 +143,56 @@ const ChatLayout: React.FC = () => {
               className="w-[300px]"
             >
               <CollapsibleTrigger asChild>
-                <div className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
-                  isPlaylistOpen 
-                    ? 'bg-success/20 text-success' 
-                    : 'hover:bg-gray-700/50 text-gray-300'
-                }`}>
-                  <Music size={18} />
-                  <span className="text-sm">Playlist de foco extremo</span>
+                <div className="bg-[#1DB954]/20 hover:bg-[#1DB954]/30 px-4 py-2 rounded-full transition-all flex items-center gap-2 cursor-pointer">
+                  <Music size={18} className="text-[#1DB954]" />
+                  <span className="text-sm font-medium text-[#1DB954]">Playlist de foco extremo</span>
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
-                <iframe 
-                  src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
-                  width="100%" 
-                  height="352" 
-                  frameBorder="0" 
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                  loading="lazy"
-                  title="Spotify Playlist"
-                  className="rounded-md animate-fade-in"
-                />
-                
-                {/* Player Controls */}
-                <div className="flex items-center justify-center space-x-4 mt-2 p-2 glass rounded-md">
-                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-                    <Shuffle size={18} className="text-gray-300" />
-                  </button>
+                <div className="overflow-hidden rounded-xl bg-[#8B1F60] text-white">
+                  <iframe 
+                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
+                    width="100%" 
+                    height="352" 
+                    frameBorder="0" 
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                    loading="lazy"
+                    title="Spotify Playlist"
+                    className="w-full"
+                  />
                   
-                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-                    <SkipBack size={20} className="text-gray-300" />
-                  </button>
+                  <div className="flex items-center justify-center space-x-4 py-3 bg-[#6D1A4D]">
+                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
+                      <Shuffle size={18} className="text-white/80" />
+                    </button>
+                    
+                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
+                      <SkipBack size={20} className="text-white/80" />
+                    </button>
+                    
+                    <button 
+                      className="p-2 rounded-full transition-colors bg-white"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                    >
+                      {isPlaying ? 
+                        <Pause size={24} className="text-[#8B1F60]" /> : 
+                        <Play size={24} className="text-[#8B1F60]" />}
+                    </button>
+                    
+                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
+                      <SkipForward size={20} className="text-white/80" />
+                    </button>
+                    
+                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
+                      <Repeat size={18} className="text-white/80" />
+                    </button>
+                  </div>
                   
-                  <button 
-                    className="p-2 hover:bg-gray-700/50 rounded-full transition-colors bg-gray-800/50"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                  >
-                    {isPlaying ? 
-                      <Pause size={24} className="text-white" /> : 
-                      <Play size={24} className="text-white" />}
-                  </button>
-                  
-                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-                    <SkipForward size={20} className="text-gray-300" />
-                  </button>
-                  
-                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-                    <Repeat size={18} className="text-gray-300" />
-                  </button>
-                </div>
-                
-                {/* Progress Bar */}
-                <div className="w-full px-2 py-3">
-                  <div className="w-full h-1 bg-gray-700 rounded-full">
-                    <div className="w-1/2 h-1 bg-white rounded-full relative">
-                      <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 rounded-full bg-white"></div>
+                  <div className="w-full px-4 pb-4 bg-[#6D1A4D]">
+                    <div className="w-full h-1 bg-white/20 rounded-full">
+                      <div className="w-1/2 h-1 bg-white rounded-full relative">
+                        <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 rounded-full bg-white"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -221,3 +210,4 @@ const ChatLayout: React.FC = () => {
 };
 
 export default ChatLayout;
+
