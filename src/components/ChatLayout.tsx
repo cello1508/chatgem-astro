@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -13,7 +12,6 @@ import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
 import { Music } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
@@ -29,7 +27,7 @@ const ChatLayout: React.FC = () => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
-  const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -138,21 +136,17 @@ const ChatLayout: React.FC = () => {
           )}
           
           <div className="ml-auto w-full max-w-full px-2">
-            <Collapsible
-              open={isPlaylistOpen}
-              onOpenChange={setIsPlaylistOpen}
-              className="w-full"
-            >
-              <CollapsibleTrigger asChild>
-                <div className="bg-[#1DB954]/20 hover:bg-[#1DB954]/30 px-4 py-2 rounded-full transition-all flex items-center gap-2 cursor-pointer">
-                  <Music size={18} className="text-[#1DB954]" />
-                  <span className="text-sm font-medium text-[#1DB954]">Playlist de foco extremo</span>
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 w-full">
-                <SpotifyPlayer className="w-full" />
-              </CollapsibleContent>
-            </Collapsible>
+            {showPlayer ? (
+              <SpotifyPlayer className="w-full" />
+            ) : (
+              <button
+                onClick={() => setShowPlayer(true)}
+                className="bg-[#1DB954]/20 hover:bg-[#1DB954]/30 px-4 py-2 rounded-full transition-all flex items-center gap-2 cursor-pointer w-auto ml-auto"
+              >
+                <Music size={18} className="text-[#1DB954]" />
+                <span className="text-sm font-medium text-[#1DB954]">Playlist de foco</span>
+              </button>
+            )}
           </div>
         </div>
         
