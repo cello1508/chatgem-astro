@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff, MapPin, GripHorizontal } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff, MapPin, GripHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import BitcoinChart from './BitcoinChart';
 import ForecastTimeline from './ForecastTimeline';
@@ -53,7 +53,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   const [weatherError, setWeatherError] = useState(false);
   const [regionName, setRegionName] = useState<string | null>(null);
   const [isWidgetDragging, setIsWidgetDragging] = useState(false);
-  const [dragPosition, setDragPosition] = useState(0);
   const [showFearGreedIndex, setShowFearGreedIndex] = useState(false);
   const { toast } = useToast();
 
@@ -252,6 +251,10 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     }
   };
 
+  const toggleWidget = () => {
+    setShowFearGreedIndex(!showFearGreedIndex);
+  };
+
   const getWeatherDescription = (code: number): string => {
     if (code === 0) return "Céu limpo";
     if (code >= 1 && code <= 3) return "Parcialmente nublado";
@@ -327,13 +330,22 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   return (
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className="relative overflow-hidden draggable-container">
+        <div className="relative overflow-hidden">
+          <div className="absolute top-2 right-2 z-10">
+            <button 
+              className="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors focus:outline-none"
+              onClick={toggleWidget}
+              title={showFearGreedIndex ? "Mostrar preço do Bitcoin" : "Mostrar índice de medo e ganância"}
+            >
+              {showFearGreedIndex ? <ChevronLeft className="w-5 h-5 text-gray-300" /> : <ChevronRight className="w-5 h-5 text-gray-300" />}
+            </button>
+          </div>
+          
           <div 
-            className={`bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 absolute inset-0 transform ${
+            className={`bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 ${
               hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
               hasMessageBeenSent && priceTrend === 'down' ? 'bg-red-500/10' : ''
-            }`}
-            style={{ transform: `translateX(-${dragPosition}%)` }}
+            } ${showFearGreedIndex ? 'transform -translate-x-full opacity-0' : 'transform translate-x-0 opacity-100'}`}
           >
             <div className="flex justify-between items-center mb-2">
               <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
@@ -386,18 +398,11 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
           </div>
           
           <div 
-            className="bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 absolute inset-0 transform"
-            style={{ transform: `translateX(${100 - dragPosition}%)` }}
+            className={`bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 absolute inset-0 ${
+              showFearGreedIndex ? 'transform translate-x-0 opacity-100' : 'transform translate-x-full opacity-0'
+            }`}
           >
             <FearGreedIndex />
-          </div>
-          
-          <div 
-            className="absolute right-0 top-0 bottom-0 w-6 bg-gray-800/50 hover:bg-gray-700/50 flex items-center justify-center cursor-grab z-10 rounded-r-md"
-            onMouseDown={handleDragStart}
-            style={{ transform: `translateX(-${dragPosition}%)` }}
-          >
-            <GripHorizontal className="w-4 h-4 text-gray-400" />
           </div>
         </div>
         
