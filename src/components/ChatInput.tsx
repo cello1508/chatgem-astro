@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, ChevronUp, ChevronDown, MessageSquare, Circle } from 'lucide-react';
+import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
 
@@ -86,6 +86,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     setIsExpanded(false);
   };
 
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   // Clean up interval on unmount
   useEffect(() => {
     return () => {
@@ -129,15 +133,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <CollapsibleTrigger asChild>
-                    <button
-                      type="button"
-                      className="p-1.5 rounded-lg transition-all hover:bg-gray-700/30"
-                      title={isExpanded ? "Esconder opções" : "Mostrar opções"}
-                    >
-                      {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-                    </button>
-                  </CollapsibleTrigger>
+                  <button
+                    type="button"
+                    className="p-1.5 rounded-lg transition-all hover:bg-gray-700/30"
+                    title={isExpanded ? "Esconder opções" : "Mostrar opções"}
+                    onClick={handleToggleExpand}
+                  >
+                    {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                  </button>
                   
                   {isHolding && (
                     <svg
