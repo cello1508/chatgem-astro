@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -90,7 +89,6 @@ const ChatLayout: React.FC = () => {
     }
   };
 
-  // Render the active section component
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tasks':
@@ -116,7 +114,6 @@ const ChatLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0F0F0F]">
-      {/* Sidebar */}
       <div 
         className={`fixed inset-y-0 left-0 z-20 transform transition-transform duration-300 ease-in-out lg:relative ${
           showSidebar ? 'translate-x-0' : '-translate-x-full'
@@ -129,11 +126,8 @@ const ChatLayout: React.FC = () => {
         />
       </div>
       
-      {/* Main content */}
       <div className="flex flex-1 flex-col w-full">
-        {/* Top bar with playlist button and sidebar toggle */}
         <div className="sticky top-0 z-10 p-2 flex justify-between items-center glass">
-          {/* Toggle sidebar button (mobile only) */}
           {isMobile && (
             <button
               onClick={() => setShowSidebar(true)}
@@ -147,7 +141,6 @@ const ChatLayout: React.FC = () => {
             </button>
           )}
           
-          {/* Playlist collapsible component */}
           <div className="ml-auto">
             <Collapsible
               open={isPlaylistOpen}
@@ -165,24 +158,21 @@ const ChatLayout: React.FC = () => {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
-                <div className="p-2 glass rounded-lg border border-gray-800/50 animate-fade-in">
-                  <iframe 
-                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
-                    width="100%" 
-                    height="352" 
-                    frameBorder="0" 
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                    loading="lazy"
-                    title="Spotify Playlist"
-                    className="rounded-md"
-                  />
-                </div>
+                <iframe 
+                  src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator" 
+                  width="100%" 
+                  height="352" 
+                  frameBorder="0" 
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                  loading="lazy"
+                  title="Spotify Playlist"
+                  className="rounded-md animate-fade-in"
+                />
               </CollapsibleContent>
             </Collapsible>
           </div>
         </div>
         
-        {/* Section content */}
         <div className="flex flex-col h-full">
           {renderActiveSection()}
         </div>
