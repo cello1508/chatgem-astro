@@ -112,25 +112,25 @@ const ProductivityChart: React.FC = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white text-gray-700">
           <DialogHeader>
-            <DialogTitle>Compartilhar Retrospectiva</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-medium">Compartilhar Retrospectiva</DialogTitle>
+            <DialogDescription className="text-gray-500">
               Compartilhe sua retrospectiva de produtividade nas redes sociais.
             </DialogDescription>
           </DialogHeader>
           
-          {/* Chart in the dialog */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="w-32 h-32 mx-auto mb-2">
+          {/* Chart in the dialog with colored labels */}
+          <div className="flex flex-col items-center my-4">
+            <div className="w-40 h-40 mx-auto mb-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={35}
-                    outerRadius={55}
+                    innerRadius={40}
+                    outerRadius={70}
                     paddingAngle={2}
                     dataKey="value"
                   >
@@ -142,25 +142,27 @@ const ProductivityChart: React.FC = () => {
               </ResponsiveContainer>
             </div>
             
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 mb-2">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2 mb-2">
               {data.map((item, index) => (
-                <div key={index} className="flex items-center gap-1.5">
+                <div key={index} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-xs text-gray-300">{item.name}: {item.value}h</span>
+                  <span className="text-sm" style={{ color: item.color }}>{item.name}: {item.value}h</span>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="bg-gray-800 rounded-md p-4 my-2 text-sm whitespace-pre-wrap">
+          {/* Dark box with retrospective */}
+          <div className="bg-[#1A2032] rounded-md p-6 my-2 text-white whitespace-pre-wrap">
             {retrospectiveText}
           </div>
-          <DialogFooter className="sm:justify-start">
+          
+          <DialogFooter className="mt-4">
             <button
               onClick={copyToClipboard}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm rounded-lg bg-success/20 text-success hover:bg-success/30 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm rounded-full bg-success/10 text-success hover:bg-success/20 transition-colors"
             >
-              <Copy size={16} />
+              <Copy size={18} />
               Copiar para Compartilhar
             </button>
           </DialogFooter>
