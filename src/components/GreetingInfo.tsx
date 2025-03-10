@@ -14,9 +14,21 @@ interface WeatherData {
   name?: string;
 }
 
+type TimePeriod = '1h' | '7d' | '1m' | '1y';
+
+interface PriceData {
+  currentPrice: number | null;
+  previousPrice: number | null;
+}
+
 const GreetingInfo: React.FC = () => {
-  const [btcPrice, setBtcPrice] = useState<number | null>(null);
-  const [prevBtcPrice, setPrevBtcPrice] = useState<number | null>(null);
+  const [priceData, setPriceData] = useState<Record<TimePeriod, PriceData>>({
+    '1h': { currentPrice: null, previousPrice: null },
+    '7d': { currentPrice: null, previousPrice: null },
+    '1m': { currentPrice: null, previousPrice: null },
+    '1y': { currentPrice: null, previousPrice: null }
+  });
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1h');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -29,8 +41,14 @@ const GreetingInfo: React.FC = () => {
         const data = await response.json();
         const newPrice = parseFloat(data.price);
         
-        setPrevBtcPrice(btcPrice); // Store previous price before updating
-        setBtcPrice(newPrice);
+        // Update price data for the current time period
+        setPriceData(prev => ({
+          ...prev,
+          [selectedPeriod]: {
+            previousPrice: prev[selectedPeriod].currentPrice,
+            currentPrice: newPrice
+          }
+        }));
       } catch (error) {
         console.error('Error fetching BTC price:', error);
         toast({
@@ -70,15 +88,22 @@ const GreetingInfo: React.FC = () => {
     return () => {
       clearInterval(btcInterval);
     };
-  }, [toast, btcPrice]);
+  }, [toast, selectedPeriod]);
 
   // Determine price trend
   const getPriceTrend = () => {
-    if (!prevBtcPrice || !btcPrice) return 'neutral';
-    return btcPrice > prevBtcPrice ? 'up' : btcPrice < prevBtcPrice ? 'down' : 'neutral';
+    const currentData = priceData[selectedPeriod];
+    if (!currentData.previousPrice || !currentData.currentPrice) return 'neutral';
+    return currentData.currentPrice > currentData.previousPrice ? 'up' : 
+           currentData.currentPrice < currentData.previousPrice ? 'down' : 'neutral';
   };
 
   const priceTrend = getPriceTrend();
+  const currentPrice = priceData[selectedPeriod].currentPrice;
+
+  const handlePeriodChange = (period: TimePeriod) => {
+    setSelectedPeriod(period);
+  };
 
   if (loading) {
     return (
@@ -97,14 +122,31 @@ const GreetingInfo: React.FC = () => {
           priceTrend === 'up' ? 'bg-green-500/10' : 
           priceTrend === 'down' ? 'bg-red-500/10' : ''
         }`}>
-          <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
-          {btcPrice ? (
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
+            <div className="flex space-x-2">
+              {(['1h', '7d', '1m', '1y'] as TimePeriod[]).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => handlePeriodChange(period)}
+                  className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                    selectedPeriod === period 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#333]'
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+          {currentPrice ? (
             <div className="flex items-center">
               <p className={`text-xl font-semibold transition-colors duration-500 ${
                 priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
                 priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
               }`}>
-                ${btcPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               {priceTrend === 'up' && (
                 <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
