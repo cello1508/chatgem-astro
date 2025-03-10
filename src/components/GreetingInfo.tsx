@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff, MapPin } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import BitcoinChart from './BitcoinChart';
 
 interface WeatherData {
   main?: {
@@ -12,6 +13,7 @@ interface WeatherData {
     icon: string;
   }[];
   name?: string;
+  region?: string;
 }
 
 type TimePeriod = '1h' | '7d' | '1m' | '1y';
@@ -47,6 +49,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [weatherError, setWeatherError] = useState(false);
+  const [regionName, setRegionName] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,6 +60,9 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          
+          // Get region name from coordinates
+          fetchRegionName(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -75,6 +81,35 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     }
   }, [toast]);
 
+  const fetchRegionName = async (latitude: number, longitude: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch location data');
+      }
+      
+      const data = await response.json();
+      
+      const city = data.address.city || data.address.town || data.address.village || '';
+      const state = data.address.state || '';
+      const country = data.address.country || '';
+      
+      const region = city 
+        ? `${city}${state ? ', ' + state : ''}${country ? ', ' + country : ''}`
+        : state 
+          ? `${state}${country ? ', ' + country : ''}`
+          : country || 'Região Desconhecida';
+      
+      setRegionName(region);
+    } catch (error) {
+      console.error('Error fetching region name:', error);
+      setRegionName('Região Desconhecida');
+    }
+  };
+
   useEffect(() => {
     const handleMessageSent = () => {
       setHasMessageBeenSent(true);
@@ -90,9 +125,9 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   useEffect(() => {
     const fetchBtcPrice = async () => {
       try {
-        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+        const response = await fetch('https://api.coincap.io/v2/assets/bitcoin');
         const data = await response.json();
-        const newPrice = parseFloat(data.price);
+        const newPrice = parseFloat(data.data.priceUsd);
         
         setPriceData(prev => ({
           ...prev,
@@ -103,11 +138,28 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
         }));
       } catch (error) {
         console.error('Error fetching BTC price:', error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível obter o preço do Bitcoin.",
-          variant: "destructive",
-        });
+        
+        // Fallback to Binance API if CoinCap fails
+        try {
+          const binanceResponse = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+          const binanceData = await binanceResponse.json();
+          const newPrice = parseFloat(binanceData.price);
+          
+          setPriceData(prev => ({
+            ...prev,
+            [selectedPeriod]: {
+              previousPrice: prev[selectedPeriod].currentPrice,
+              currentPrice: newPrice
+            }
+          }));
+        } catch (binanceError) {
+          console.error('Error fetching BTC price from Binance:', binanceError);
+          toast({
+            title: "Erro",
+            description: "Não foi possível obter o preço do Bitcoin.",
+            variant: "destructive",
+          });
+        }
       }
     };
 
@@ -133,7 +185,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             description: getWeatherDescription(data.current.weather_code),
             icon: getWeatherIcon(data.current.weather_code)
           }],
-          name: 'sua região'
+          name: regionName || 'sua região'
         };
         
         setWeatherData(weatherInfo);
@@ -159,7 +211,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     return () => {
       clearInterval(btcInterval);
     };
-  }, [toast, selectedPeriod, userLocation]);
+  }, [toast, selectedPeriod, userLocation, regionName]);
 
   const getWeatherDescription = (code: number): string => {
     if (code === 0) return "Céu limpo";
@@ -286,22 +338,31 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
           ) : (
             <p className="text-xl font-semibold text-white">Indisponível</p>
           )}
+          
+          {/* Bitcoin Chart */}
+          <BitcoinChart period={selectedPeriod} />
         </div>
         
         <div className="bg-[#1f1f1f] p-4 rounded-md">
-          <p className="text-sm text-gray-400">Clima em {weatherData?.name || "sua região"}</p>
+          <p className="text-sm text-gray-400 mb-1">Clima</p>
           {weatherData && weatherData.weather && weatherData.weather.length > 0 ? (
-            <div className="flex items-center">
+            <div className="flex items-start">
               {weatherData.weather[0]?.icon && (
                 <img 
                   src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} 
                   alt="Weather icon" 
-                  className="w-10 h-10 mr-2"
+                  className="w-12 h-12 mr-2"
                 />
               )}
               <div>
-                <p className="text-xl font-semibold text-white">{weatherData.main ? Math.round(weatherData.main.temp) : ''}°C</p>
-                <p className="text-sm text-gray-300">{weatherData.weather[0]?.description || ""}</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-xl font-semibold text-white">{weatherData.main ? Math.round(weatherData.main.temp) : ''}°C</p>
+                  <p className="text-sm text-gray-300 ml-1">{weatherData.weather[0]?.description || ""}</p>
+                </div>
+                <div className="flex items-center mt-1 text-gray-400">
+                  <MapPin size={14} className="mr-1" />
+                  <p className="text-sm">{regionName || weatherData.name || "Região desconhecida"}</p>
+                </div>
               </div>
             </div>
           ) : (
