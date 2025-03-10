@@ -149,48 +149,33 @@ const ChatLayout: React.FC = () => {
       </div>
       
       <div className="flex flex-1 flex-col w-full">
-        <div className="sticky top-0 z-10 p-2 flex justify-between items-center glass">
-          {isMobile && (
-            <button
-              onClick={() => setShowSidebar(true)}
-              className="p-2 rounded-md bg-[#171717]/80 border border-gray-800 lg:hidden"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </button>
-          )}
-          
-          <div className="ml-auto">
-            <button 
-              onClick={togglePlaylist}
-              className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${
-                playlistActive 
-                  ? 'bg-success/20 text-success' 
-                  : 'hover:bg-gray-700/50 text-gray-300'
-              }`}
-              title="Playlist de foco extremo"
-            >
-              <Music size={18} />
-              <span className="text-sm">Playlist de foco extremo</span>
-            </button>
+        <div className="sticky top-0 z-10 glass">
+          <div className="p-2 flex justify-between items-center">
+            {isMobile && (
+              <button
+                onClick={() => setShowSidebar(true)}
+                className="p-2 rounded-md bg-[#171717]/80 border border-gray-800 lg:hidden"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </button>
+            )}
+            
+            <div className="flex-1 px-2">
+              <MusicPlayer 
+                isPlaying={isPlaying}
+                onPlayPause={handlePlayPause}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                progress={progress}
+                onProgressChange={handleProgressChange}
+              />
+            </div>
           </div>
         </div>
-        
-        {playlistActive && (
-          <div className="mx-4 p-4 glass rounded-lg border border-gray-800/50 animate-fade-in">
-            <MusicPlayer 
-              isPlaying={isPlaying}
-              onPlayPause={handlePlayPause}
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-              progress={progress}
-              onProgressChange={handleProgressChange}
-            />
-          </div>
-        )}
         
         <div className="flex flex-col h-full">
           {renderActiveSection()}
