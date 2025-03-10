@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { TrendingUp, TrendingDown, CloudOff, MapPin } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import BitcoinChart from './BitcoinChart';
+import CryptoNews from './CryptoNews';
 
 interface WeatherData {
   main?: {
@@ -61,7 +62,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             longitude: position.coords.longitude,
           });
           
-          // Get region name from coordinates
           fetchRegionName(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
@@ -139,7 +139,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
       } catch (error) {
         console.error('Error fetching BTC price:', error);
         
-        // Fallback to Binance API if CoinCap fails
         try {
           const binanceResponse = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
           const binanceData = await binanceResponse.json();
@@ -339,7 +338,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
             <p className="text-xl font-semibold text-white">Indisponível</p>
           )}
           
-          {/* Bitcoin Chart */}
           <BitcoinChart period={selectedPeriod} />
         </div>
         
@@ -374,6 +372,8 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
               </div>
             </div>
           )}
+          
+          <CryptoNews />
         </div>
       </div>
       
