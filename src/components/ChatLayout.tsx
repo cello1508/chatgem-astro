@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -6,6 +7,7 @@ import TasksSection from './TasksSection';
 import NotesSection from './NotesSection';
 import CalendarSection from './CalendarSection';
 import PomodoroSection from './PomodoroSection';
+import GreetingInfo from './GreetingInfo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
@@ -94,6 +96,9 @@ const ChatLayout: React.FC = () => {
       default:
         return (
           <>
+            <div className="px-4 md:px-8 pt-4">
+              <GreetingInfo />
+            </div>
             <MessageList messages={messages} isTyping={isTyping} />
             <div className="p-4 pb-6 w-full">
               <ChatInput onSendMessage={handleSendMessage} disabled={isTyping} />
