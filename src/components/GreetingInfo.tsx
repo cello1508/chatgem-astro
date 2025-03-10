@@ -2,19 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-interface BtcPrice {
-  brl: { last: number };
-}
-
 interface WeatherData {
-  main: {
+  main?: {
     temp: number;
   };
-  weather: {
+  weather?: {
     description: string;
     icon: string;
   }[];
-  name: string;
+  name?: string;
 }
 
 const GreetingInfo: React.FC = () => {
@@ -87,7 +83,7 @@ const GreetingInfo: React.FC = () => {
         
         <div className="bg-[#1f1f1f] p-4 rounded-md">
           <p className="text-sm text-gray-400">Clima em {weatherData?.name || "São Paulo"}</p>
-          {weatherData ? (
+          {weatherData && weatherData.weather && weatherData.weather.length > 0 ? (
             <div className="flex items-center">
               {weatherData.weather[0]?.icon && (
                 <img 
@@ -97,7 +93,7 @@ const GreetingInfo: React.FC = () => {
                 />
               )}
               <div>
-                <p className="text-xl font-semibold text-white">{Math.round(weatherData.main.temp)}°C</p>
+                <p className="text-xl font-semibold text-white">{weatherData.main ? Math.round(weatherData.main.temp) : ''}°C</p>
                 <p className="text-sm text-gray-300">{weatherData.weather[0]?.description || ""}</p>
               </div>
             </div>
