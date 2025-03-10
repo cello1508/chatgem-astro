@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Puzzle } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 
 interface SidebarProps {
@@ -16,6 +16,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
 
+  const [showPlugins, setShowPlugins] = useState(false);
+
   const sections = [
     { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
     { id: 'tasks', title: 'Tarefas', icon: CheckSquare },
@@ -23,6 +25,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: 'calendar', title: 'Agenda', icon: Calendar },
     { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
   ];
+  
+  const plugins = [
+    { id: 'translator', name: 'Tradutor' },
+    { id: 'calculator', name: 'Calculadora' },
+    { id: 'summarizer', name: 'Resumidor' },
+    { id: 'image-gen', name: 'Gerador de Imagens' },
+  ];
+
+  const togglePlugins = () => {
+    setShowPlugins(!showPlugins);
+  };
 
   return (
     <div className="h-full w-[280px] glass flex flex-col">
@@ -89,13 +102,47 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         <ProductivityChart />
       </div>
 
+      {/* Plugin Library (shows when togglePlugins is true) */}
+      {showPlugins && (
+        <div className="px-3 pb-3 animate-fade-in">
+          <div className="bg-gray-800/50 rounded-lg p-3">
+            <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
+              <Puzzle size={15} /> Biblioteca de Plugins
+            </h3>
+            <div className="space-y-1.5">
+              {plugins.map(plugin => (
+                <button 
+                  key={plugin.id}
+                  className="w-full text-left text-sm bg-gray-700/30 hover:bg-gray-700/50 rounded px-2.5 py-1.5 transition-all"
+                >
+                  {plugin.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-            <span className="text-sm font-semibold">U</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+              <span className="text-sm font-semibold">U</span>
+            </div>
+            <div className="text-sm">Usuário</div>
           </div>
-          <div className="text-sm">Usuário</div>
+          <button 
+            onClick={togglePlugins}
+            className={`p-1.5 rounded-md transition-all ${
+              showPlugins 
+                ? 'bg-success/20 text-success' 
+                : 'hover:bg-gray-700/50 text-gray-300'
+            }`}
+            title="Biblioteca de Plugins"
+          >
+            <Puzzle size={18} />
+          </button>
         </div>
       </div>
     </div>
