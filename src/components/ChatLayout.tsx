@@ -5,6 +5,8 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
+import { useToast } from '@/hooks/use-toast';
+import { webhookService } from '@/services/webhookService';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
@@ -18,13 +20,15 @@ const ChatLayout: React.FC = () => {
     },
   ]);
   const [isTyping, setIsTyping] = React.useState(false);
+  const { toast } = useToast();
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     
     // Add user message
+    const userMessageId = Date.now().toString();
     const userMessage: MessageType = {
-      id: Date.now().toString(),
+      id: userMessageId,
       role: 'user',
       content,
       timestamp: new Date().toISOString(),
@@ -35,18 +39,40 @@ const ChatLayout: React.FC = () => {
     // Simulate assistant typing
     setIsTyping(true);
     
-    // Simulate response after delay
-    setTimeout(() => {
+    try {
+      // Enviar a mensagem para o webhook
+      const webhookResponse = await webhookService.sendMessage(content);
+      
+      // Adicionar resposta do assistente com base na resposta do webhook
       const assistantMessage: MessageType = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Recebi sua mensagem: "${content}". Como posso continuar te ajudando?`,
+        content: webhookResponse.answer || "Desculpe, não consegui processar sua pergunta. Tente novamente.",
         timestamp: new Date().toISOString(),
       };
       
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      // Em caso de erro na chamada do webhook
+      console.error('Erro ao processar mensagem:', error);
+      toast({
+        title: "Erro na comunicação",
+        description: "Não foi possível obter resposta do servidor. Tente novamente.",
+        variant: "destructive",
+      });
+      
+      // Adicionar mensagem de erro como resposta do assistente
+      const errorMessage: MessageType = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.",
+        timestamp: new Date().toISOString(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
