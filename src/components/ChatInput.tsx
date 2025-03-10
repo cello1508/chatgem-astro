@@ -44,6 +44,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   };
 
   const handleMouseEnter = () => {
+    // Don't start the hover timer if already expanded
+    if (isExpanded) return;
+    
     // Start the hover timer when mouse enters
     setIsHolding(true);
     setHoldProgress(0);
@@ -87,8 +90,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   };
 
   const handleToggleExpand = () => {
-    // Toggle the expanded state
-    setIsExpanded(!isExpanded);
+    // When already expanded, just close it
+    if (isExpanded) {
+      setIsExpanded(false);
+    } else {
+      // When not expanded, toggle to expand it
+      setIsExpanded(true);
+    }
   };
 
   // Clean up interval on unmount
@@ -143,7 +151,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                     {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
                   </button>
                   
-                  {isHolding && (
+                  {isHolding && !isExpanded && (
                     <svg
                       className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 transition-all"
                       viewBox="0 0 24 24"
