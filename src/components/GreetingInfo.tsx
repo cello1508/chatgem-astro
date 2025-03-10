@@ -31,7 +31,22 @@ const GreetingInfo: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('1h');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const { toast } = useToast();
+
+  // Check if message has been sent
+  useEffect(() => {
+    // Listen for message events from ChatInput
+    const handleMessageSent = () => {
+      setHasMessageBeenSent(true);
+    };
+
+    window.addEventListener('messageSent', handleMessageSent);
+
+    return () => {
+      window.removeEventListener('messageSent', handleMessageSent);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchBtcPrice = async () => {
@@ -131,8 +146,8 @@ const GreetingInfo: React.FC = () => {
       <h2 className="text-xl font-medium text-white mb-3">Olá, bom dia!</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className={`bg-[#1f1f1f] p-4 rounded-md transition-colors duration-500 ${
-          priceTrend === 'up' ? 'bg-green-500/10' : 
-          priceTrend === 'down' ? 'bg-red-500/10' : ''
+          hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
+          hasMessageBeenSent && priceTrend === 'down' ? 'bg-red-500/10' : ''
         }`}>
           <div className="flex justify-between items-center mb-2">
             <p className="text-sm text-gray-400">Bitcoin (BTC)</p>
@@ -156,24 +171,24 @@ const GreetingInfo: React.FC = () => {
             <div className="flex items-center">
               <div>
                 <p className={`text-xl font-semibold transition-colors duration-500 ${
-                  priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
-                  priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
+                  hasMessageBeenSent && priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
+                  hasMessageBeenSent && priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
                 }`}>
                   ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 {percentChange && (
                   <p className={`text-sm transition-colors duration-500 ${
-                    priceTrend === 'up' ? 'text-green-500' : 
-                    priceTrend === 'down' ? 'text-red-500' : 'text-white'
+                    hasMessageBeenSent && priceTrend === 'up' ? 'text-green-500' : 
+                    hasMessageBeenSent && priceTrend === 'down' ? 'text-red-500' : 'text-white'
                   }`}>
                     {priceTrend === 'up' ? '+' : ''}{percentChange}%
                   </p>
                 )}
               </div>
-              {priceTrend === 'up' && (
+              {hasMessageBeenSent && priceTrend === 'up' && (
                 <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
               )}
-              {priceTrend === 'down' && (
+              {hasMessageBeenSent && priceTrend === 'down' && (
                 <TrendingDown className="ml-2 h-5 w-5 text-red-500 animate-fade-in" />
               )}
             </div>

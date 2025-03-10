@@ -16,6 +16,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     if (message.trim() && !disabled) {
       onSendMessage(message);
       setMessage('');
+      
+      // Dispatch custom event when a message is sent
+      const messageSentEvent = new Event('messageSent');
+      window.dispatchEvent(messageSentEvent);
     }
   };
 
