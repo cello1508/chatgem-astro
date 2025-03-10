@@ -16,16 +16,12 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
   const [clientId, setClientId] = useState(() => {
     return localStorage.getItem('google_calendar_client_id') || '';
   });
-  const [clientSecret, setClientSecret] = useState(() => {
-    return localStorage.getItem('google_calendar_client_secret') || '';
-  });
   const { toast } = useToast();
 
   const handleGoogleLogin = () => {
     const savedClientId = localStorage.getItem('google_calendar_client_id');
-    const savedClientSecret = localStorage.getItem('google_calendar_client_secret');
     
-    if (!savedClientId || !savedClientSecret) {
+    if (!savedClientId) {
       setShowCredentialsDialog(true);
       return;
     }
@@ -50,7 +46,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
       'response_type': 'token',
       'scope': scope,
       'include_granted_scopes': 'true',
-      'state': savedClientSecret, // We'll store the client secret in the state parameter
+      'state': 'pass-through-value'
     };
     
     // Add form parameters as hidden input values
@@ -68,24 +64,17 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
     document.body.removeChild(form);
   };
 
-  const handleSaveCredentials = () => {
-    if (clientId.trim() && clientSecret.trim()) {
+  const handleSaveClientId = () => {
+    if (clientId.trim()) {
       localStorage.setItem('google_calendar_client_id', clientId.trim());
-      localStorage.setItem('google_calendar_client_secret', clientSecret.trim());
       setShowCredentialsDialog(false);
       toast({
         title: "Credenciais salvas",
-        description: "Suas credenciais do Google foram salvas com sucesso.",
+        description: "Seu Client ID do Google foi salvo com sucesso.",
       });
       
       // Attempt login after saving credentials
       setTimeout(handleGoogleLogin, 500);
-    } else {
-      toast({
-        title: "Dados incompletos",
-        description: "Por favor, preencha o Client ID e o Client Secret.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -100,23 +89,20 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
     // Temporary storage for the token/expiry
     let accessToken = '';
     let expiresIn = '';
-    let state = '';
     
     // Parse fragment parameters
     if (fragmentString) {
       const params = new URLSearchParams(fragmentString);
       accessToken = params.get('access_token') || '';
       expiresIn = params.get('expires_in') || '';
-      state = params.get('state') || ''; // This should contain our client secret
       
       // Clear the hash fragment from the URL
       if (accessToken) {
         window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
         
-        // Store token and client secret in sessionStorage
+        // Store token in sessionStorage (more secure than localStorage for this use case)
         sessionStorage.setItem('google_calendar_token', accessToken);
         sessionStorage.setItem('google_calendar_token_expiry', (Date.now() + (parseInt(expiresIn) * 1000)).toString());
-        sessionStorage.setItem('google_calendar_client_secret', state);
         
         setIsConnected(true);
         setIsLoading(false);
@@ -182,7 +168,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
             <DialogTitle>Configurar Credenciais do Google</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <p>Para usar a integração com o Google Agenda, você precisa configurar as credenciais OAuth do Google.</p>
+            <p>Para usar a integração com o Google Agenda, você precisa configurar um ID de cliente OAuth do Google.</p>
             
             <div className="space-y-2">
               <label htmlFor="clientId" className="block text-sm font-medium">
@@ -201,25 +187,8 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
               </p>
             </div>
             
-            <div className="space-y-2">
-              <label htmlFor="clientSecret" className="block text-sm font-medium">
-                Client Secret
-              </label>
-              <input
-                id="clientSecret"
-                type="text"
-                value={clientSecret}
-                onChange={(e) => setClientSecret(e.target.value)}
-                placeholder="Seu Google OAuth Client Secret"
-                className="w-full glass-input rounded-lg px-3 py-2 text-gray-100 focus:outline-none placeholder:text-gray-500"
-              />
-              <p className="text-xs text-gray-400">
-                O Client Secret é uma string fornecida pelo Google junto com o Client ID
-              </p>
-            </div>
-            
             <div className="bg-gray-800/60 p-4 rounded-lg">
-              <h3 className="font-medium mb-2">Como obter suas credenciais:</h3>
+              <h3 className="font-medium mb-2">Como obter seu Client ID:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm">
                 <li>Acesse o <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-success underline">Google Cloud Console</a></li>
                 <li>Crie um novo projeto ou selecione um existente</li>
@@ -227,7 +196,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
                 <li>Clique em "Criar Credenciais" e selecione "ID do cliente OAuth"</li>
                 <li>Configure o tipo de aplicação como "Aplicativo da Web"</li>
                 <li>Adicione {window.location.origin} como URI de redirecionamento autorizado</li>
-                <li>Clique em "Criar" e copie o ID do cliente e o Secret</li>
+                <li>Clique em "Criar" e copie o ID do cliente</li>
               </ol>
             </div>
             
@@ -239,8 +208,8 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
                 Cancelar
               </button>
               <button
-                onClick={handleSaveCredentials}
-                disabled={!clientId.trim() || !clientSecret.trim()}
+                onClick={handleSaveClientId}
+                disabled={!clientId.trim()}
                 className="px-4 py-2 rounded-lg bg-success hover:bg-success/90 text-black transition-colors disabled:opacity-50 disabled:pointer-events-none"
               >
                 Salvar
@@ -257,7 +226,7 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
             <DialogTitle>Configuração Necessária</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <p>Para usar a integração com o Google Agenda, você precisa configurar as credenciais OAuth do Google.</p>
+            <p>Para usar a integração com o Google Agenda, você precisa configurar um ID de cliente OAuth do Google.</p>
             
             <div className="bg-gray-800/60 p-4 rounded-lg">
               <h3 className="font-medium mb-2">Como configurar:</h3>
@@ -267,12 +236,12 @@ const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onSuccess }
                 <li>Navegue até "APIs e Serviços" &gt; "Credenciais"</li>
                 <li>Crie um ID de cliente OAuth 2.0</li>
                 <li>Adicione {window.location.origin} como URI de redirecionamento autorizado</li>
-                <li>Copie o ID do cliente e o Client Secret e defina-os na aplicação</li>
+                <li>Copie o ID do cliente e defina-o na aplicação</li>
               </ol>
             </div>
             
             <p className="text-sm text-gray-400">
-              Depois de obter suas credenciais, clique no ícone de configuração ao lado do botão de conexão.
+              Depois de obter seu Client ID, você precisará editar o código fonte para adicioná-lo.
             </p>
           </div>
         </DialogContent>
