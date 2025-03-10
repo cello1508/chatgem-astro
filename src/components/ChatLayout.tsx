@@ -6,11 +6,12 @@ import TasksSection from './TasksSection';
 import NotesSection from './NotesSection';
 import CalendarSection from './CalendarSection';
 import PomodoroSection from './PomodoroSection';
+import SpotifyPlayer from './SpotifyPlayer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
-import { Music, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const ChatLayout: React.FC = () => {
@@ -28,7 +29,6 @@ const ChatLayout: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -149,47 +149,7 @@ const ChatLayout: React.FC = () => {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
-                <div className="overflow-hidden rounded-xl bg-[#8B1F60] text-white">
-                  <iframe 
-                    style={{borderRadius:"12px"}} 
-                    src="https://open.spotify.com/embed/playlist/5U0foVQIwgsOxpj1EEnEXp?utm_source=generator&theme=0" 
-                    width="100%" 
-                    height="152" 
-                    frameBorder="0" 
-                    allowFullScreen 
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                    loading="lazy"
-                    title="Spotify Playlist"
-                    className="w-full"
-                  />
-                  
-                  <div className="flex items-center justify-center space-x-4 py-3 bg-[#6D1A4D]">
-                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
-                      <Shuffle size={18} className="text-white/80" />
-                    </button>
-                    
-                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
-                      <SkipBack size={20} className="text-white/80" />
-                    </button>
-                    
-                    <button 
-                      className="p-2 rounded-full transition-colors bg-white"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      {isPlaying ? 
-                        <Pause size={24} className="text-[#8B1F60]" /> : 
-                        <Play size={24} className="text-[#8B1F60]" />}
-                    </button>
-                    
-                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
-                      <SkipForward size={20} className="text-white/80" />
-                    </button>
-                    
-                    <button className="p-2 hover:bg-[#8B1F60] rounded-full transition-colors">
-                      <Repeat size={18} className="text-white/80" />
-                    </button>
-                  </div>
-                </div>
+                <SpotifyPlayer />
               </CollapsibleContent>
             </Collapsible>
           </div>
