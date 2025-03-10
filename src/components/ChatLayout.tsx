@@ -1,8 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
+import TasksSection from './TasksSection';
+import NotesSection from './NotesSection';
+import CalendarSection from './CalendarSection';
+import PomodoroSection from './PomodoroSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
@@ -10,16 +14,17 @@ import { webhookService } from '@/services/webhookService';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
-  const [showSidebar, setShowSidebar] = React.useState(!isMobile);
-  const [messages, setMessages] = React.useState<MessageType[]>([
+  const [showSidebar, setShowSidebar] = useState(!isMobile);
+  const [activeSection, setActiveSection] = useState('chat');
+  const [messages, setMessages] = useState<MessageType[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'Olá! Como posso ajudar você hoje?',
+      content: 'Olá! Como posso ajudar você hoje? Você pode me fazer perguntas ou usar os recursos de produtividade no menu lateral.',
       timestamp: new Date().toISOString(),
     },
   ]);
-  const [isTyping, setIsTyping] = React.useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
 
   const handleSendMessage = async (content: string) => {
@@ -75,6 +80,37 @@ const ChatLayout: React.FC = () => {
     }
   };
 
+  const handleChangeSection = (section: string) => {
+    setActiveSection(section);
+    if (isMobile) {
+      setShowSidebar(false);
+    }
+  };
+
+  // Render the active section component
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'tasks':
+        return <TasksSection />;
+      case 'notes':
+        return <NotesSection />;
+      case 'calendar':
+        return <CalendarSection />;
+      case 'pomodoro':
+        return <PomodoroSection />;
+      case 'chat':
+      default:
+        return (
+          <>
+            <MessageList messages={messages} isTyping={isTyping} />
+            <div className="p-4 pb-6 w-full">
+              <ChatInput onSendMessage={handleSendMessage} disabled={isTyping} />
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0F0F0F]">
       {/* Sidebar */}
@@ -83,7 +119,11 @@ const ChatLayout: React.FC = () => {
           showSidebar ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
-        <Sidebar onClose={() => setShowSidebar(false)} />
+        <Sidebar 
+          onClose={() => setShowSidebar(false)} 
+          onChangeSection={handleChangeSection}
+          activeSection={activeSection}
+        />
       </div>
       
       {/* Main content */}
@@ -102,15 +142,9 @@ const ChatLayout: React.FC = () => {
           </button>
         )}
         
-        {/* Chat interface */}
+        {/* Section content */}
         <div className="flex flex-col h-full">
-          {/* Messages container */}
-          <MessageList messages={messages} isTyping={isTyping} />
-          
-          {/* Input area */}
-          <div className="p-4 pb-6 w-full">
-            <ChatInput onSendMessage={handleSendMessage} disabled={isTyping} />
-          </div>
+          {renderActiveSection()}
         </div>
       </div>
     </div>
