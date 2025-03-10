@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
-import { Check, Plus, Trash2, Share } from 'lucide-react';
+import { Check, Plus, Trash2, Share, Copy } from 'lucide-react';
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface Task {
   id: string;
@@ -15,6 +17,8 @@ const TasksSection: React.FC = () => {
     { id: '2', text: 'Revisar documentação', completed: true, createdAt: new Date().toISOString() },
   ]);
   const [newTask, setNewTask] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [retrospectiveText, setRetrospectiveText] = useState('');
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,8 +59,14 @@ const TasksSection: React.FC = () => {
       `Tarefas concluídas:\n${tasks.filter(t => t.completed).map(t => `✓ ${t.text}`).join('\n')}\n\n` +
       `Gerado pelo Productivity AI 🚀`;
     
-    navigator.clipboard.writeText(retrospective).then(() => {
+    setRetrospectiveText(retrospective);
+    setDialogOpen(true);
+  };
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(retrospectiveText).then(() => {
       toast.success("Retrospectiva de tarefas copiada para a área de transferência!");
+      setDialogOpen(false);
     });
   };
 
@@ -145,6 +155,29 @@ const TasksSection: React.FC = () => {
           ))}
         </div>
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Compartilhar Retrospectiva de Tarefas</DialogTitle>
+            <DialogDescription>
+              Compartilhe seu progresso de tarefas nas redes sociais.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-gray-800 rounded-md p-4 my-2 text-sm whitespace-pre-wrap">
+            {retrospectiveText}
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <button
+              onClick={copyToClipboard}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm rounded-lg bg-success/20 text-success hover:bg-success/30 transition-colors"
+            >
+              <Copy size={16} />
+              Copiar para Compartilhar
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
