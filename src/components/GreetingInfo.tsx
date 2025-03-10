@@ -24,6 +24,7 @@ const GreetingInfo: React.FC = () => {
   useEffect(() => {
     const fetchBtcPrice = async () => {
       try {
+        // Fetch directly from Binance API
         const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
         const data = await response.json();
         const newPrice = parseFloat(data.price);
@@ -42,8 +43,8 @@ const GreetingInfo: React.FC = () => {
 
     const fetchWeather = async () => {
       try {
-        // Using São Paulo as default location for Brazil
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Sao Paulo,br&units=metric&appid=da0f9c8d90bde7e619c3ec7d42d52964`);
+        // Using a valid API key for OpenWeatherMap
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Sao Paulo,br&units=metric&appid=4331036eb3b754b61040c7f1116dd796`);
         const data = await response.json();
         setWeatherData(data);
       } catch (error) {
