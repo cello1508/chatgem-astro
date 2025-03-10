@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -96,6 +97,41 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#0F0F0F] text-gray-100 antialiased overflow-hidden;
+  }
+
+  /* Scrollbar customization */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(30, 30, 30, 0.5);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(80, 80, 80, 0.8);
+    border-radius: 10px;
+  }
+
+  /* Glass effect components */
+  .glass {
+    @apply bg-[#171717]/70 backdrop-blur-lg border border-gray-800/50 shadow-lg;
+  }
+
+  .glass-input {
+    @apply bg-[#212121]/70 backdrop-blur-sm border border-gray-700/50;
+  }
+
+  /* Success icon animation */
+  .success-icon {
+    @apply text-success transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  .chat-container {
+    height: calc(100vh - 4rem);
   }
 }
