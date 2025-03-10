@@ -5,4 +5,5 @@ export interface MessageType {
   content: string;
   timestamp: string;
   isProcessing?: boolean;
+  modelId?: string;
 }

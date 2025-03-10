@@ -17,6 +17,7 @@ const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
   const [showSidebar, setShowSidebar] = useState(!isMobile);
   const [activeSection, setActiveSection] = useState('chat');
+  const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: '1',
@@ -31,7 +32,7 @@ const ChatLayout: React.FC = () => {
   // Check if any user messages exist
   const hasUserMessages = messages.some(message => message.role === 'user');
 
-  const handleSendMessage = async (content: string, modelId?: string) => {
+  const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     
     const userMessageId = Date.now().toString();
@@ -48,14 +49,14 @@ const ChatLayout: React.FC = () => {
     
     try {
       // Pass the modelId to the webhookService
-      const webhookResponse = await webhookService.sendMessage(content, modelId);
+      const webhookResponse = await webhookService.sendMessage(content, selectedModel);
       
       const assistantMessage: MessageType = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: webhookResponse.answer || "Desculpe, não consegui processar sua pergunta. Tente novamente.",
         timestamp: new Date().toISOString(),
-        modelId: modelId, // Store the model ID with the message
+        modelId: selectedModel, // Store the model ID with the message
       };
       
       setMessages(prev => [...prev, assistantMessage]);
@@ -78,6 +79,19 @@ const ChatLayout: React.FC = () => {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleNewConversation = () => {
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: 'Olá! Como posso ajudar você hoje? Você pode me fazer perguntas ou usar os recursos de produtividade no menu lateral.',
+      timestamp: new Date().toISOString(),
+    }]);
+  };
+
+  const handleSelectModel = (modelId: string) => {
+    setSelectedModel(modelId);
   };
 
   const handleChangeSection = (section: string) => {
@@ -103,7 +117,11 @@ const ChatLayout: React.FC = () => {
           <>
             {!hasUserMessages && (
               <div className="px-4 md:px-8 pt-4">
-                <GreetingInfo />
+                <GreetingInfo 
+                  onNewConversation={handleNewConversation}
+                  onSelectModel={handleSelectModel}
+                  selectedModel={selectedModel}
+                />
               </div>
             )}
             <MessageList messages={messages} isTyping={isTyping} />

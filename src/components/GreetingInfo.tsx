@@ -1,7 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff, Plus, History, ChevronDown, ChevronUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface WeatherData {
   main?: {
@@ -26,7 +28,17 @@ interface Coordinates {
   longitude: number;
 }
 
-const GreetingInfo: React.FC = () => {
+interface GreetingInfoProps {
+  onNewConversation?: () => void;
+  onSelectModel?: (modelId: string) => void;
+  selectedModel?: string;
+}
+
+const GreetingInfo: React.FC<GreetingInfoProps> = ({ 
+  onNewConversation,
+  onSelectModel,
+  selectedModel = 'gpt-3.5-turbo'
+}) => {
   const [priceData, setPriceData] = useState<Record<TimePeriod, PriceData>>({
     '1h': { currentPrice: null, previousPrice: null },
     '7d': { currentPrice: null, previousPrice: null },
@@ -39,6 +51,7 @@ const GreetingInfo: React.FC = () => {
   const [hasMessageBeenSent, setHasMessageBeenSent] = useState(false);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [weatherError, setWeatherError] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -218,6 +231,12 @@ const GreetingInfo: React.FC = () => {
     setSelectedPeriod(period);
   };
 
+  const handleModelChange = (value: string) => {
+    if (onSelectModel) {
+      onSelectModel(value);
+    }
+  };
+
   if (loading && !weatherError) {
     return (
       <div className="p-4 mb-4 bg-[#171717] rounded-lg animate-pulse">
@@ -229,7 +248,7 @@ const GreetingInfo: React.FC = () => {
 
   return (
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className={`bg-[#1f1f1f] p-4 rounded-md transition-colors duration-500 ${
           hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
           hasMessageBeenSent && priceTrend === 'down' ? 'bg-red-500/10' : ''
@@ -308,6 +327,66 @@ const GreetingInfo: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Centered model selection and conversation controls */}
+      <div className="flex flex-col items-center mt-6 space-y-3">
+        <div className="w-full max-w-md">
+          <Select value={selectedModel} onValueChange={handleModelChange}>
+            <SelectTrigger className="w-full bg-[#1f1f1f] border-gray-700">
+              <SelectValue placeholder="Selecione um modelo" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1f1f1f] border-gray-700 text-white">
+              <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+              <SelectItem value="gpt-4">GPT-4</SelectItem>
+              <SelectItem value="claude-3">Claude 3</SelectItem>
+              <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <button
+          onClick={onNewConversation}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white transition-colors w-full max-w-md"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Nova Conversa</span>
+        </button>
+        
+        <Collapsible 
+          open={isHistoryOpen} 
+          onOpenChange={setIsHistoryOpen}
+          className="w-full max-w-md bg-[#1f1f1f] rounded-md overflow-hidden"
+        >
+          <CollapsibleTrigger className="flex justify-between items-center w-full p-3 text-left bg-[#1f1f1f] hover:bg-[#2a2a2a] border-t border-b border-gray-800">
+            <div className="flex items-center space-x-2">
+              <History className="h-4 w-4 text-gray-400" />
+              <span>Histórico de Conversas</span>
+            </div>
+            {isHistoryOpen ? (
+              <ChevronUp className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="p-2 max-h-48 overflow-y-auto scrollbar-thin">
+            <div className="space-y-1">
+              {/* Placeholder for conversation history items */}
+              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
+                <p className="text-sm truncate">Como usar o GPT para pesquisa</p>
+                <p className="text-xs text-gray-400">Ontem</p>
+              </div>
+              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
+                <p className="text-sm truncate">Ajuda com código React</p>
+                <p className="text-xs text-gray-400">3 dias atrás</p>
+              </div>
+              <div className="p-2 hover:bg-[#2a2a2a] rounded cursor-pointer">
+                <p className="text-sm truncate">Ideias para projeto de IA</p>
+                <p className="text-xs text-gray-400">5 dias atrás</p>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
