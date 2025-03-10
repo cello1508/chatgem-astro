@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -140,7 +141,7 @@ const ChatLayout: React.FC = () => {
             <Collapsible
               open={isPlaylistOpen}
               onOpenChange={setIsPlaylistOpen}
-              className="w-[300px]"
+              className="w-full max-w-[800px]"
             >
               <CollapsibleTrigger asChild>
                 <div className="bg-[#1DB954]/20 hover:bg-[#1DB954]/30 px-4 py-2 rounded-full transition-all flex items-center gap-2 cursor-pointer">
@@ -148,8 +149,8 @@ const ChatLayout: React.FC = () => {
                   <span className="text-sm font-medium text-[#1DB954]">Playlist de foco extremo</span>
                 </div>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2">
-                <SpotifyPlayer />
+              <CollapsibleContent className="mt-2 w-full pr-1">
+                <SpotifyPlayer className="max-w-[800px]" />
               </CollapsibleContent>
             </Collapsible>
           </div>

@@ -4,11 +4,13 @@ import React, { useEffect, useState, useRef } from 'react';
 interface SpotifyPlayerProps {
   defaultEpisodeId?: string;
   defaultPlaylistId?: string;
+  className?: string;
 }
 
 const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({ 
   defaultEpisodeId = "spotify:playlist:5U0foVQIwgsOxpj1EEnEXp",
-  defaultPlaylistId = "5U0foVQIwgsOxpj1EEnEXp"
+  defaultPlaylistId = "5U0foVQIwgsOxpj1EEnEXp",
+  className = "",
 }) => {
   const embedRef = useRef<HTMLDivElement>(null);
   const [controller, setController] = useState<any>(null);
@@ -19,7 +21,11 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
     const script = document.createElement('script');
     script.src = 'https://open.spotify.com/embed/iframe-api/v1';
     script.async = true;
-    document.body.appendChild(script);
+    
+    // Check if script already exists to prevent duplicate scripts
+    if (!document.querySelector(`script[src="${script.src}"]`)) {
+      document.body.appendChild(script);
+    }
 
     // Initialize the API when it's ready
     window.onSpotifyIframeApiReady = (IFrameAPI: any) => {
@@ -44,7 +50,6 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
 
     return () => {
       // Clean up
-      document.body.removeChild(script);
       if (controller) {
         controller.destroy();
       }
@@ -58,11 +63,11 @@ const SpotifyPlayer: React.FC<SpotifyPlayerProps> = ({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl bg-[#8B1F60] text-white">
+    <div className={`overflow-hidden rounded-xl bg-[#8B1F60] text-white w-full ${className}`}>
       <div ref={embedRef} id="embed-iframe" className="w-full" />
       
-      <div className="flex items-center justify-between p-3 bg-[#6D1A4D]">
-        <div className="flex space-x-2">
+      <div className="flex flex-wrap items-center justify-between p-3 bg-[#6D1A4D]">
+        <div className="flex flex-wrap gap-2 mb-2 sm:mb-0">
           <button 
             className="px-3 py-2 rounded-md bg-[#191414] hover:bg-[#1DB954] transition-colors"
             onClick={() => handlePlayItem(`spotify:playlist:${defaultPlaylistId}`)}
