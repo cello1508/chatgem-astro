@@ -9,11 +9,24 @@ interface BitcoinDataPoint {
 
 interface ChartProps {
   period: string;
+  priceTrend?: 'up' | 'down' | 'neutral';
 }
 
-const BitcoinChart: React.FC<ChartProps> = ({ period }) => {
+const BitcoinChart: React.FC<ChartProps> = ({ period, priceTrend = 'neutral' }) => {
   const [chartData, setChartData] = useState<BitcoinDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trendColor, setTrendColor] = useState('#38D784'); // Default to green
+
+  useEffect(() => {
+    // Set the chart color based on the price trend
+    if (priceTrend === 'up') {
+      setTrendColor('#38D784'); // Green
+    } else if (priceTrend === 'down') {
+      setTrendColor('#ea384c'); // Red
+    } else {
+      setTrendColor('#38D784'); // Default green
+    }
+  }, [priceTrend]);
 
   useEffect(() => {
     const fetchBitcoinData = async () => {
@@ -116,15 +129,15 @@ const BitcoinChart: React.FC<ChartProps> = ({ period }) => {
             formatter={(value: number) => [`$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Price']}
             labelFormatter={(label) => new Date(label).toLocaleString()}
             contentStyle={{ backgroundColor: '#222', borderColor: '#444', borderRadius: '4px' }}
-            itemStyle={{ color: '#38D784' }}
+            itemStyle={{ color: trendColor }}
           />
           <Line 
             type="monotone" 
             dataKey="price" 
-            stroke="#38D784" 
+            stroke={trendColor} 
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: '#38D784', stroke: '#1c1c1c', strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: trendColor, stroke: '#1c1c1c', strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>
