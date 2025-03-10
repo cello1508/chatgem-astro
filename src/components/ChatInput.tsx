@@ -1,32 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, ChevronUp, ChevronDown, MessageSquare, Zap } from 'lucide-react';
+import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface ChatInputProps {
   onSendMessage: (message: string, modelId?: string) => void;
   disabled?: boolean;
 }
 
-// Define available models
-const llmModels = [
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'Modelo mais avançado' },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Equilibrado: velocidade e precisão' },
-  { id: 'claude-3', name: 'Claude 3', description: 'Excelente em raciocínio e contexto' },
-  { id: 'gemini-pro', name: 'Gemini Pro', description: 'Ótimo para tarefas criativas' },
-];
-
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   // Histórico de conversas
@@ -39,7 +23,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
-      onSendMessage(message, selectedModel);
+      onSendMessage(message);
       setMessage('');
       
       // Dispatch custom event when a message is sent
@@ -71,28 +55,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         className="w-full mb-4"
       >
         <form onSubmit={handleSubmit} className="relative">
-          {/* Model selector above the input */}
-          <div className="flex justify-end mb-2">
-            <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-auto min-w-[180px] text-xs h-8 bg-gray-800/70 border-gray-700">
-                <div className="flex items-center gap-2">
-                  <Zap size={14} className="text-success" />
-                  <SelectValue placeholder="Selecione o modelo" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                {llmModels.map((model) => (
-                  <SelectItem key={model.id} value={model.id} className="text-white hover:bg-gray-700 focus:bg-gray-700">
-                    <div className="flex flex-col">
-                      <span>{model.name}</span>
-                      <span className="text-xs text-gray-400">{model.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
           <div className="glass-input rounded-xl overflow-hidden transition-all focus-within:border-success/50 focus-within:shadow-[0_0_10px_rgba(56,215,132,0.15)]">
             <div className="relative">
               <textarea
