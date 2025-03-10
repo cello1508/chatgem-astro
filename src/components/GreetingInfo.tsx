@@ -98,7 +98,19 @@ const GreetingInfo: React.FC = () => {
            currentData.currentPrice < currentData.previousPrice ? 'down' : 'neutral';
   };
 
+  // Calculate percentage change
+  const getPercentageChange = () => {
+    const currentData = priceData[selectedPeriod];
+    if (!currentData.previousPrice || !currentData.currentPrice) return null;
+    
+    const change = currentData.currentPrice - currentData.previousPrice;
+    const percentChange = (change / currentData.previousPrice) * 100;
+    
+    return percentChange.toFixed(2);
+  };
+
   const priceTrend = getPriceTrend();
+  const percentChange = getPercentageChange();
   const currentPrice = priceData[selectedPeriod].currentPrice;
 
   const handlePeriodChange = (period: TimePeriod) => {
@@ -142,12 +154,22 @@ const GreetingInfo: React.FC = () => {
           </div>
           {currentPrice ? (
             <div className="flex items-center">
-              <p className={`text-xl font-semibold transition-colors duration-500 ${
-                priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
-                priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
-              }`}>
-                ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
+              <div>
+                <p className={`text-xl font-semibold transition-colors duration-500 ${
+                  priceTrend === 'up' ? 'text-green-500 animate-fade-in' : 
+                  priceTrend === 'down' ? 'text-red-500 animate-fade-in' : 'text-white'
+                }`}>
+                  ${currentPrice?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+                {percentChange && (
+                  <p className={`text-sm transition-colors duration-500 ${
+                    priceTrend === 'up' ? 'text-green-500' : 
+                    priceTrend === 'down' ? 'text-red-500' : 'text-white'
+                  }`}>
+                    {priceTrend === 'up' ? '+' : ''}{percentChange}%
+                  </p>
+                )}
+              </div>
               {priceTrend === 'up' && (
                 <TrendingUp className="ml-2 h-5 w-5 text-green-500 animate-fade-in" />
               )}
