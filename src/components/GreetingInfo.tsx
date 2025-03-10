@@ -22,9 +22,9 @@ const GreetingInfo: React.FC = () => {
   useEffect(() => {
     const fetchBtcPrice = async () => {
       try {
-        const response = await fetch('https://api.btcmarkets.net/v3/markets/BTC-AUD/ticker');
+        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
         const data = await response.json();
-        setBtcPrice(data.lastPrice);
+        setBtcPrice(parseFloat(data.price));
       } catch (error) {
         console.error('Error fetching BTC price:', error);
         toast({
@@ -53,8 +53,17 @@ const GreetingInfo: React.FC = () => {
       }
     };
 
+    // Initial fetch
     fetchBtcPrice();
     fetchWeather();
+
+    // Set up interval for real-time updates of BTC price
+    const btcInterval = setInterval(fetchBtcPrice, 10000); // Update every 10 seconds
+
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(btcInterval);
+    };
   }, [toast]);
 
   if (loading) {
