@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Plug, Grid } from 'lucide-react';
-import ProductivityChart from './ProductivityChart';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React from 'react';
+import { Home, ListTodo, FileText, Calendar, Timer, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   onClose: () => void;
@@ -11,147 +10,80 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSection }) => {
-  const [conversations, setConversations] = useState([
-    { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
-    { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
-    { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
-  ]);
-
-  const [pluginDialogOpen, setPluginDialogOpen] = useState(false);
+  const { username, logout } = useAuth();
 
   const sections = [
-    { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
-    { id: 'tasks', title: 'Tarefas', icon: CheckSquare },
-    { id: 'notes', title: 'Anotações', icon: FileText },
-    { id: 'calendar', title: 'Agenda', icon: Calendar },
-    { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
+    { id: 'chat', icon: <Home size={24} />, label: 'Assistente' },
+    { id: 'tasks', icon: <ListTodo size={24} />, label: 'Tarefas' },
+    { id: 'notes', icon: <FileText size={24} />, label: 'Notas' },
+    { id: 'calendar', icon: <Calendar size={24} />, label: 'Calendário' },
+    { id: 'pomodoro', icon: <Timer size={24} />, label: 'Pomodoro' },
+    { id: 'settings', icon: <Settings size={24} />, label: 'Configurações' },
   ];
-  
-  const plugins = [
-    { id: 'translator', name: 'Tradutor', description: 'Tradução entre idiomas' },
-    { id: 'calculator', name: 'Calculadora', description: 'Cálculos e conversões' },
-    { id: 'summarizer', name: 'Resumidor', description: 'Resumo de textos longos' },
-    { id: 'image-gen', name: 'Gerador de Imagens', description: 'Crie imagens com IA' },
-    { id: 'code-helper', name: 'Ajudante de Código', description: 'Assistência em programação' },
-    { id: 'data-viz', name: 'Visualização de Dados', description: 'Gráficos e relatórios' },
-    { id: 'meeting-notes', name: 'Notas de Reunião', description: 'Organização de reuniões' },
-    { id: 'file-converter', name: 'Conversor de Arquivos', description: 'Converta entre formatos' },
-  ];
-
-  const openPluginGallery = () => {
-    setPluginDialogOpen(true);
-  };
 
   return (
-    <div className="h-full w-[280px] glass flex flex-col">
-      {/* Header */}
-      <div className="p-4 flex justify-between items-center border-b border-gray-800">
-        <h2 className="font-medium">Productivity AI</h2>
-        <button 
-          onClick={onClose}
-          className="p-1 rounded-md hover:bg-gray-700/50"
-        >
-          <X size={18} />
-        </button>
-      </div>
+    <div className="h-screen w-64 glass border-r border-gray-800">
+      <div className="h-full flex flex-col">
+        <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+          <h1 className="text-xl font-bold text-white">Produtividade</h1>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white lg:hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
 
-      {/* Sections */}
-      <div className="p-3">
-        <nav className="space-y-1">
+        <div className="p-4 border-b border-gray-800">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center text-white text-lg font-semibold">
+              {username ? username.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div>
+              <div className="text-gray-200 font-medium">{username || 'Usuário'}</div>
+              <div className="text-gray-400 text-sm">Usuário Gratuito</div>
+            </div>
+          </div>
+        </div>
+
+        <nav className="flex-1 p-2 overflow-y-auto space-y-1">
           {sections.map((section) => (
             <button
               key={section.id}
               onClick={() => onChangeSection(section.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                activeSection === section.id 
-                  ? 'bg-success/20 text-success' 
-                  : 'hover:bg-gray-700/30'
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                activeSection === section.id
+                  ? 'bg-[#2A2A2A] text-white'
+                  : 'text-gray-400 hover:bg-[#1A1A1A] hover:text-gray-200'
               }`}
             >
-              <section.icon size={18} />
-              <span>{section.title}</span>
+              <span className="flex-shrink-0">{section.icon}</span>
+              <span className="text-sm font-medium">{section.label}</span>
             </button>
           ))}
         </nav>
-      </div>
 
-      {/* Section Content - only show if chat is active */}
-      {activeSection === 'chat' && (
-        <>
-          {/* New chat button */}
-          <button className="mx-3 mt-3 bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all">
-            <Plus size={18} />
-            <span>Nova conversa</span>
+        <div className="p-4 border-t border-gray-800">
+          <button 
+            onClick={logout}
+            className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-[#1A1A1A] hover:text-gray-200 transition-colors"
+          >
+            <LogOut size={24} />
+            <span className="text-sm font-medium">Sair</span>
           </button>
-
-          {/* Conversation list */}
-          <div className="flex-1 overflow-y-auto py-3 px-2">
-            {conversations.map((convo) => (
-              <button
-                key={convo.id}
-                className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 mb-1 flex items-start gap-2 transition-all"
-              >
-                <MessageSquare size={16} className="mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{convo.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{convo.date}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Productivity Chart */}
-      <div className="mt-auto px-3 pb-3">
-        <ProductivityChart />
-      </div>
-
-      {/* Plugin Gallery Dialog */}
-      <Dialog open={pluginDialogOpen} onOpenChange={setPluginDialogOpen}>
-        <DialogContent className="glass border-gray-800 max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plug size={18} /> Galeria de Plugins
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2 max-h-[70vh] overflow-y-auto p-1">
-            {plugins.map(plugin => (
-              <div
-                key={plugin.id}
-                className="bg-gray-800/60 rounded-lg p-4 hover:bg-gray-700/70 transition-all border border-gray-700/50 cursor-pointer"
-              >
-                <h3 className="font-medium mb-1">{plugin.name}</h3>
-                <p className="text-sm text-gray-400">{plugin.description}</p>
-                <div className="flex justify-end mt-3">
-                  <button className="text-xs bg-success/10 hover:bg-success/20 text-success px-3 py-1 rounded transition-all">
-                    Instalar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-              <span className="text-sm font-semibold">U</span>
-            </div>
-            <div className="text-sm">Usuário</div>
-          </div>
-          <div>
-            <button 
-              onClick={openPluginGallery}
-              className="p-1.5 rounded-md hover:bg-gray-700/50 text-gray-300 transition-all"
-              title="Galeria de Plugins"
-            >
-              <Grid size={18} />
-            </button>
-          </div>
         </div>
       </div>
     </div>
