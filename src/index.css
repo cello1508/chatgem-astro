@@ -96,8 +96,12 @@
     @apply border-border;
   }
 
-  body {
+  body.dark {
     @apply bg-[#0F0F0F] text-gray-100 antialiased overflow-hidden;
+  }
+  
+  body.light {
+    @apply bg-gray-100 text-gray-900 antialiased overflow-hidden;
   }
 
   /* Scrollbar customization */

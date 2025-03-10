@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Headphones } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Headphones, Sun, Moon } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
+import { useTheme } from '@/hooks/use-theme';
 
 interface SidebarProps {
   onClose: () => void;
@@ -15,6 +16,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
+
+  const { theme, toggleTheme } = useTheme();
 
   const sections = [
     { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
@@ -97,11 +100,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-            <span className="text-sm font-semibold">U</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+              <span className="text-sm font-semibold">U</span>
+            </div>
+            <div className="text-sm">Usuário</div>
           </div>
-          <div className="text-sm">Usuário</div>
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-gray-700/50 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <Sun size={18} className="text-gray-300" />
+            ) : (
+              <Moon size={18} className="text-gray-300" />
+            )}
+          </button>
         </div>
       </div>
     </div>
