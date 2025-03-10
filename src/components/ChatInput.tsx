@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -52,8 +53,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     
     holdTimerRef.current = setInterval(() => {
       setHoldProgress(prev => {
-        // 100% in 2 seconds (20 steps of 100ms)
-        const newProgress = prev + (100 / 20);
+        // 100% in 3 seconds (30 steps of 100ms)
+        const newProgress = prev + (100 / 30);
         
         if (newProgress >= 100) {
           // Clear the interval when we reach 100%
@@ -62,7 +63,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
             holdTimerRef.current = null;
           }
           
-          // Expand after 2 seconds
+          // Expand after 3 seconds
           setIsExpanded(true);
           setIsHolding(false);
           return 0;
@@ -194,12 +195,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         </form>
         
         <CollapsibleContent 
-          className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-1000 ease-out animate-accordion-down transform origin-top"
+          className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] animate-accordion-down transform origin-top"
         >
           {/* New chat button */}
           <button 
             className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3 transform hover:scale-[1.02] active:scale-100 duration-300 animate-slide-in" 
-            style={{ animationDuration: '0.8s', animationDelay: '0.1s' }}
+            style={{ animationDuration: '1.2s', animationDelay: '0.2s' }}
           >
             <Plus size={18} />
             <span>Nova conversa</span>
@@ -208,11 +209,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           {/* Conversation history */}
           <div 
             className="space-y-1 max-h-[200px] overflow-y-auto animate-fade-in" 
-            style={{ animationDuration: '1s', animationDelay: "0.3s" }}
+            style={{ animationDuration: '1.5s', animationDelay: "0.5s" }}
           >
             <h3 
               className="text-sm text-gray-400 mb-2 px-2 animate-fade-in" 
-              style={{ animationDuration: '0.8s', animationDelay: "0.4s" }}
+              style={{ animationDuration: '1.2s', animationDelay: "0.7s" }}
             >
               Histórico de conversas
             </h3>
@@ -223,8 +224,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                   className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all transform hover:translate-x-1 hover:bg-gray-700/50 duration-300 animate-slide-in"
                   onClick={handleClosePanel}
                   style={{ 
-                    animationDuration: '0.8s',
-                    animationDelay: `${0.5 + (index * 0.15)}s`,
+                    animationDuration: '1.2s',
+                    animationDelay: `${0.8 + (index * 0.25)}s`,
                     transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
                   }}
                 >
