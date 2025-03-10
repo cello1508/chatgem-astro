@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Headphones } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 
 interface SidebarProps {
@@ -22,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: 'notes', title: 'Anotações', icon: FileText },
     { id: 'calendar', title: 'Agenda', icon: Calendar },
     { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
+    { id: 'playlists', title: 'Playlists de FOCO EXTREMO', icon: Headphones },
   ];
 
   return (
