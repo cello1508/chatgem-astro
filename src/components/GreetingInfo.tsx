@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { TrendingUp, TrendingDown, CloudOff, MapPin, GripHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, CloudOff, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import BitcoinChart from './BitcoinChart';
 import ForecastTimeline from './ForecastTimeline';
@@ -232,8 +232,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     
     const newPosition = Math.max(0, Math.min(100, ((e.clientX - containerRect.left) / containerWidth) * 100));
     
-    setDragPosition(newPosition);
-    
     setShowFearGreedIndex(newPosition > 20);
   };
 
@@ -242,13 +240,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragEnd);
     
-    if (dragPosition > 40) {
-      setDragPosition(100);
-      setShowFearGreedIndex(true);
-    } else {
-      setDragPosition(0);
-      setShowFearGreedIndex(false);
-    }
   };
 
   const toggleWidget = () => {
@@ -329,18 +320,21 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
 
   return (
     <div className="p-6 mb-4 bg-[#171717] rounded-lg border border-gray-800">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 relative">
+        <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-20">
+          <button 
+            className="w-8 h-16 rounded-r-md bg-[#33C3F0] hover:bg-[#1EAEDB] flex items-center justify-center transition-colors focus:outline-none shadow-lg border-l border-gray-700"
+            onClick={toggleWidget}
+            title={showFearGreedIndex ? "Mostrar preço do Bitcoin" : "Mostrar índice de medo e ganância"}
+          >
+            {showFearGreedIndex ? 
+              <ChevronLeft className="w-5 h-5 text-white" /> : 
+              <ChevronRight className="w-5 h-5 text-white" />
+            }
+          </button>
+        </div>
+        
         <div className="relative overflow-hidden">
-          <div className="absolute top-2 right-2 z-10">
-            <button 
-              className="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors focus:outline-none"
-              onClick={toggleWidget}
-              title={showFearGreedIndex ? "Mostrar preço do Bitcoin" : "Mostrar índice de medo e ganância"}
-            >
-              {showFearGreedIndex ? <ChevronLeft className="w-5 h-5 text-gray-300" /> : <ChevronRight className="w-5 h-5 text-gray-300" />}
-            </button>
-          </div>
-          
           <div 
             className={`bg-[#1f1f1f] p-4 rounded-md transition-all duration-300 ${
               hasMessageBeenSent && priceTrend === 'up' ? 'bg-green-500/10' : 
@@ -365,6 +359,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
                 ))}
               </div>
             </div>
+            
             {currentPrice ? (
               <div className="flex items-center">
                 <div>
