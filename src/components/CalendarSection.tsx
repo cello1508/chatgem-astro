@@ -1,25 +1,30 @@
 
-import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Clock, Plus, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar as CalendarIcon, Clock, Plus, Trash2, RefreshCw } from 'lucide-react';
+import GoogleCalendarButton from './GoogleCalendarButton';
+import { useToast } from '@/hooks/use-toast';
 
 interface Event {
   id: string;
   title: string;
   date: string;
   time: string;
+  source?: 'local' | 'google';
 }
 
 const CalendarSection: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([
-    { id: '1', title: 'Reunião de equipe', date: '2023-06-15', time: '14:00' },
-    { id: '2', title: 'Entrega do projeto', date: '2023-06-20', time: '18:00' },
+    { id: '1', title: 'Reunião de equipe', date: '2023-06-15', time: '14:00', source: 'local' },
+    { id: '2', title: 'Entrega do projeto', date: '2023-06-20', time: '18:00', source: 'local' },
   ]);
   const [showEventForm, setShowEventForm] = useState(false);
-  const [newEvent, setNewEvent] = useState<Omit<Event, 'id'>>({
+  const [newEvent, setNewEvent] = useState<Omit<Event, 'id' | 'source'>>({
     title: '',
     date: '',
     time: '',
   });
+  const [isLoadingGoogleEvents, setIsLoadingGoogleEvents] = useState(false);
+  const { toast } = useToast();
 
   const handleAddEvent = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +32,7 @@ const CalendarSection: React.FC = () => {
 
     const event: Event = {
       id: Date.now().toString(),
+      source: 'local',
       ...newEvent,
     };
 
@@ -37,6 +43,88 @@ const CalendarSection: React.FC = () => {
 
   const deleteEvent = (id: string) => {
     setEvents(events.filter(event => event.id !== id));
+  };
+
+  const handleGoogleCalendarSuccess = (accessToken: string) => {
+    fetchGoogleCalendarEvents(accessToken);
+  };
+
+  const fetchGoogleCalendarEvents = async (accessToken: string) => {
+    setIsLoadingGoogleEvents(true);
+    
+    try {
+      // Get events from Google Calendar API for the next 7 days
+      const now = new Date();
+      const oneWeekLater = new Date();
+      oneWeekLater.setDate(now.getDate() + 7);
+      
+      const timeMin = now.toISOString();
+      const timeMax = oneWeekLater.toISOString();
+      
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'Erro ao buscar eventos');
+      }
+      
+      // Filter out existing Google events (by source)
+      const localEvents = events.filter(event => event.source !== 'google');
+      
+      // Process and add new Google events
+      const googleEvents: Event[] = [];
+      
+      if (data.items && data.items.length > 0) {
+        data.items.forEach((item: any) => {
+          if (item.start && (item.start.dateTime || item.start.date)) {
+            const startDateTime = item.start.dateTime || item.start.date;
+            const date = new Date(startDateTime);
+            
+            const event: Event = {
+              id: `google-${item.id}`,
+              title: item.summary || 'Evento sem título',
+              date: date.toISOString().split('T')[0],
+              time: item.start.dateTime ? date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '00:00',
+              source: 'google',
+            };
+            
+            googleEvents.push(event);
+          }
+        });
+      }
+      
+      // Update events list with both local and Google events
+      setEvents([...localEvents, ...googleEvents]);
+      
+      toast({
+        title: "Eventos sincronizados",
+        description: `${googleEvents.length} eventos obtidos do Google Agenda.`,
+      });
+    } catch (error) {
+      console.error('Erro ao buscar eventos do Google Calendar:', error);
+      toast({
+        title: "Erro ao sincronizar",
+        description: "Não foi possível buscar os eventos do Google Agenda.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingGoogleEvents(false);
+    }
+  };
+
+  const refreshGoogleEvents = () => {
+    const token = sessionStorage.getItem('google_calendar_token');
+    if (token) {
+      fetchGoogleCalendarEvents(token);
+    }
   };
 
   // Sort events by date and time
@@ -67,20 +155,44 @@ const CalendarSection: React.FC = () => {
     });
   };
 
+  // Check if we have an access token on component mount
+  useEffect(() => {
+    const token = sessionStorage.getItem('google_calendar_token');
+    if (token) {
+      fetchGoogleCalendarEvents(token);
+    }
+  }, []);
+
   return (
     <div className="max-w-3xl mx-auto w-full h-full flex flex-col">
       <div className="p-6 flex-1 overflow-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold">Calendário</h1>
-          {!showEventForm && (
-            <button 
-              onClick={() => setShowEventForm(true)}
-              className="bg-success/10 text-success rounded-lg p-2 flex items-center gap-1 hover:bg-success/20 transition-all"
-            >
-              <Plus size={18} />
-              <span>Novo evento</span>
-            </button>
-          )}
+          
+          <div className="flex flex-col md:flex-row gap-3">
+            <GoogleCalendarButton onSuccess={handleGoogleCalendarSuccess} />
+            
+            {sessionStorage.getItem('google_calendar_token') && (
+              <button
+                onClick={refreshGoogleEvents}
+                disabled={isLoadingGoogleEvents}
+                className="flex items-center gap-2 rounded-lg px-4 py-2 bg-gray-700/50 hover:bg-gray-700/70 transition-all"
+              >
+                <RefreshCw size={18} className={isLoadingGoogleEvents ? 'animate-spin' : ''} />
+                Atualizar
+              </button>
+            )}
+            
+            {!showEventForm && (
+              <button 
+                onClick={() => setShowEventForm(true)}
+                className="bg-success/10 text-success rounded-lg p-2 flex items-center gap-1 hover:bg-success/20 transition-all"
+              >
+                <Plus size={18} />
+                <span>Novo evento</span>
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Event form */}
@@ -159,19 +271,26 @@ const CalendarSection: React.FC = () => {
                 <div className="space-y-3">
                   {dateEvents.map(event => (
                     <div key={event.id} className="flex items-center gap-3 border-b border-gray-700/50 pb-3 last:border-0 last:pb-0">
-                      <div className="bg-gray-800 rounded-lg p-2">
-                        <Clock size={18} className="text-success" />
+                      <div className={`rounded-lg p-2 ${event.source === 'google' ? 'bg-blue-900/30' : 'bg-gray-800'}`}>
+                        <Clock size={18} className={event.source === 'google' ? 'text-blue-400' : 'text-success'} />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{event.title}</p>
-                        <p className="text-sm text-gray-400">{event.time}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-gray-400">{event.time}</p>
+                          {event.source === 'google' && (
+                            <span className="text-xs bg-blue-900/20 text-blue-400 px-2 py-0.5 rounded">Google</span>
+                          )}
+                        </div>
                       </div>
-                      <button 
-                        onClick={() => deleteEvent(event.id)}
-                        className="text-gray-500 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {event.source !== 'google' && (
+                        <button 
+                          onClick={() => deleteEvent(event.id)}
+                          className="text-gray-500 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
