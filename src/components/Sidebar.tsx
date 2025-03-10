@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Music } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 
 interface SidebarProps {
@@ -15,8 +15,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
-  
-  const [playlistActive, setPlaylistActive] = useState(false);
 
   const sections = [
     { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
@@ -26,52 +24,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
   ];
 
-  const togglePlaylist = () => {
-    setPlaylistActive(!playlistActive);
-  };
-
   return (
     <div className="h-full w-[280px] glass flex flex-col">
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b border-gray-800">
         <h2 className="font-medium">Productivity AI</h2>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={togglePlaylist}
-            className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 text-xs ${
-              playlistActive 
-                ? 'bg-success/20 text-success' 
-                : 'hover:bg-gray-700/50 text-gray-300'
-            }`}
-            title="Playlist de foco extremo"
-          >
-            <Music size={16} />
-            <span className="hidden sm:inline">Playlist de foco</span>
-          </button>
-          <button 
-            onClick={onClose}
-            className="p-1 rounded-md hover:bg-gray-700/50"
-          >
-            <X size={18} />
-          </button>
-        </div>
+        <button 
+          onClick={onClose}
+          className="p-1 rounded-md hover:bg-gray-700/50"
+        >
+          <X size={18} />
+        </button>
       </div>
-
-      {/* Expanded Playlist UI - Only visible when playlist is active */}
-      {playlistActive && (
-        <div className="m-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 animate-fade-in">
-          <div className="text-success text-sm font-medium mb-2 flex items-center gap-1.5">
-            <Music size={16} />
-            Playlist de foco extremo
-          </div>
-          <p className="text-xs text-gray-400 mb-3">Música para melhorar sua concentração</p>
-          <div className="flex justify-center">
-            <button className="bg-success/10 hover:bg-success/20 text-success px-4 py-1.5 rounded text-sm transition-all">
-              Reproduzir agora
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Sections */}
       <div className="p-3">

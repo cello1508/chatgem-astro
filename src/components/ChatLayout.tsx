@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
+import { Music } from 'lucide-react';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
@@ -26,6 +27,11 @@ const ChatLayout: React.FC = () => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
+  const [playlistActive, setPlaylistActive] = useState(false);
+
+  const togglePlaylist = () => {
+    setPlaylistActive(!playlistActive);
+  };
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -128,18 +134,53 @@ const ChatLayout: React.FC = () => {
       
       {/* Main content */}
       <div className="flex flex-1 flex-col w-full">
-        {/* Toggle sidebar button (mobile only) */}
-        {isMobile && (
-          <button
-            onClick={() => setShowSidebar(true)}
-            className="fixed top-4 left-4 z-30 p-2 rounded-md bg-[#171717]/80 border border-gray-800 lg:hidden"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
+        {/* Top bar with playlist button and sidebar toggle */}
+        <div className="sticky top-0 z-10 p-2 flex justify-between items-center glass">
+          {/* Toggle sidebar button (mobile only) */}
+          {isMobile && (
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="p-2 rounded-md bg-[#171717]/80 border border-gray-800 lg:hidden"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          )}
+          
+          {/* Playlist button */}
+          <div className="ml-auto">
+            <button 
+              onClick={togglePlaylist}
+              className={`p-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+                playlistActive 
+                  ? 'bg-success/20 text-success' 
+                  : 'hover:bg-gray-700/50 text-gray-300'
+              }`}
+              title="Playlist de foco extremo"
+            >
+              <Music size={18} />
+              <span className="text-sm">Playlist de foco extremo</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Expanded Playlist UI - Only visible when playlist is active */}
+        {playlistActive && (
+          <div className="mx-4 p-4 glass rounded-lg border border-gray-800/50 animate-fade-in">
+            <div className="text-success text-sm font-medium mb-2 flex items-center gap-1.5">
+              <Music size={18} />
+              Playlist de foco extremo
+            </div>
+            <p className="text-xs text-gray-400 mb-3">Música para melhorar sua concentração e produtividade</p>
+            <div className="flex justify-center">
+              <button className="bg-success/10 hover:bg-success/20 text-success px-4 py-1.5 rounded text-sm transition-all">
+                Reproduzir agora
+              </button>
+            </div>
+          </div>
         )}
         
         {/* Section content */}
