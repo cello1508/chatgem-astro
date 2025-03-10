@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -17,7 +16,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Histórico de conversas
   const conversations = [
     { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
     { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
@@ -30,7 +28,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
       onSendMessage(message);
       setMessage('');
       
-      // Dispatch custom event when a message is sent
       const messageSentEvent = new Event('messageSent');
       window.dispatchEvent(messageSentEvent);
     }
@@ -44,26 +41,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   };
 
   const handleMouseEnter = () => {
-    // Don't start the hover timer if already expanded
     if (isExpanded) return;
     
-    // Start the hover timer when mouse enters
     setIsHolding(true);
     setHoldProgress(0);
     
     holdTimerRef.current = setInterval(() => {
       setHoldProgress(prev => {
-        // 100% in 3 seconds (30 steps of 100ms)
         const newProgress = prev + (100 / 30);
         
         if (newProgress >= 100) {
-          // Clear the interval when we reach 100%
           if (holdTimerRef.current) {
             clearInterval(holdTimerRef.current);
             holdTimerRef.current = null;
           }
           
-          // Expand after 3 seconds
           setIsExpanded(true);
           setIsHolding(false);
           return 0;
@@ -75,7 +67,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   };
 
   const handleMouseLeave = () => {
-    // Cancel the timer when mouse leaves
     if (holdTimerRef.current) {
       clearInterval(holdTimerRef.current);
       holdTimerRef.current = null;
@@ -84,22 +75,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     setHoldProgress(0);
   };
 
-  // Handle clicking outside to close the expanded panel
   const handleClosePanel = () => {
     setIsExpanded(false);
   };
 
   const handleToggleExpand = () => {
-    // When already expanded, just close it
     if (isExpanded) {
       setIsExpanded(false);
     } else {
-      // When not expanded, toggle to expand it
       setIsExpanded(true);
     }
   };
 
-  // Clean up interval on unmount
   useEffect(() => {
     return () => {
       if (holdTimerRef.current) {
@@ -108,7 +95,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     };
   }, []);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -195,25 +181,23 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         </form>
         
         <CollapsibleContent 
-          className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] animate-accordion-down transform origin-top"
+          className="glass rounded-xl p-3 mt-3 border border-gray-800/50 overflow-hidden transition-all duration-[3000ms] ease-[cubic-bezier(0.16,1,0.3,1)] animate-accordion-down transform origin-top"
         >
-          {/* New chat button */}
           <button 
             className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3 transform hover:scale-[1.02] active:scale-100 duration-300 animate-slide-in" 
-            style={{ animationDuration: '1.2s', animationDelay: '0.2s' }}
+            style={{ animationDuration: '1.8s', animationDelay: '0.4s' }}
           >
             <Plus size={18} />
             <span>Nova conversa</span>
           </button>
           
-          {/* Conversation history */}
           <div 
             className="space-y-1 max-h-[200px] overflow-y-auto animate-fade-in" 
-            style={{ animationDuration: '1.5s', animationDelay: "0.5s" }}
+            style={{ animationDuration: '2.2s', animationDelay: "0.7s" }}
           >
             <h3 
               className="text-sm text-gray-400 mb-2 px-2 animate-fade-in" 
-              style={{ animationDuration: '1.2s', animationDelay: "0.7s" }}
+              style={{ animationDuration: '2s', animationDelay: "1s" }}
             >
               Histórico de conversas
             </h3>
@@ -221,11 +205,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
               {conversations.map((convo, index) => (
                 <button
                   key={convo.id}
-                  className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all transform hover:translate-x-1 hover:bg-gray-700/50 duration-300 animate-slide-in"
+                  className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all transform hover:translate-x-1 hover:bg-gray-700/50 duration-500 animate-slide-in"
                   onClick={handleClosePanel}
                   style={{ 
-                    animationDuration: '1.2s',
-                    animationDelay: `${0.8 + (index * 0.25)}s`,
+                    animationDuration: '1.8s',
+                    animationDelay: `${1.2 + (index * 0.4)}s`,
                     transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
                   }}
                 >
