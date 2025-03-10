@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
   };
 
   return (
-    <div className="h-full w-[280px] glass flex flex-col">
+    <div className="h-full w-[280px] glass flex flex-col relative">
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b border-gray-800">
         <h2 className="font-medium">Productivity AI</h2>
@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
       </div>
 
       {/* Sections */}
-      <div className="p-3">
+      <div className="p-3 overflow-y-auto" style={{ flex: '1 1 auto' }}>
         <nav className="space-y-1">
           {sections.map((section) => (
             <button
@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
 
       {/* Section Content - only show if chat is active */}
       {activeSection === 'chat' && (
-        <>
+        <div className="overflow-y-auto" style={{ flex: '1 1 auto' }}>
           {/* New chat button */}
           <button className="mx-3 mt-3 bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all">
             <Plus size={18} />
@@ -99,11 +99,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
               </button>
             ))}
           </div>
-        </>
+        </div>
       )}
 
-      {/* Productivity Chart - now with extra margin to allow for expansion */}
-      <div className="mt-auto px-3 pb-3 pt-6 relative">
+      {/* Spacer to ensure the chart has room to expand upward */}
+      <div className="flex-grow"></div>
+
+      {/* Productivity Chart - container with a placeholder for the absolute positioned chart */}
+      <div className="px-3 pb-3 relative" style={{ height: '100px' }}>
         <ProductivityChart />
       </div>
 
@@ -135,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
       </Dialog>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-gray-800 z-20 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">

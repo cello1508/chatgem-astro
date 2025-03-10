@@ -57,8 +57,8 @@ const ProductivityChart: React.FC = () => {
   return (
     <>
       <div 
-        className={`glass rounded-xl p-4 w-full transition-all duration-500 cursor-pointer relative z-10 ${
-          isHovered ? 'transform -translate-y-6' : ''
+        className={`glass rounded-xl p-4 w-full transition-all duration-700 cursor-pointer absolute ${
+          isHovered ? 'transform -translate-y-[calc(100%-60px)] h-[calc(100vh-120px)] z-30' : ''
         }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -78,45 +78,97 @@ const ProductivityChart: React.FC = () => {
           </button>
         </div>
         
-        <div className="flex justify-between items-center">
-          <div className={`transition-all duration-500 ease-in-out ${isHovered ? 'w-32 h-32 -mt-3 scale-110' : 'w-20 h-20'}`}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={isHovered ? 40 : 25}
-                  outerRadius={isHovered ? 55 : 35}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`${value}h`, 'Tempo']}
-                  contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          
-          <div className="flex-1 ml-2">
-            <div className={`grid grid-cols-2 gap-x-2 gap-y-1 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-90'}`}>
+        {isHovered ? (
+          <div className="flex flex-col items-center justify-center h-[calc(100%-60px)]">
+            <div className="w-56 h-56 mx-auto">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`${value}h`, 'Tempo']}
+                    contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3 mt-6">
               {data.map((item, index) => (
-                <div key={index} className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-xs text-gray-300">{item.name}</span>
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-sm">{item.name}: {item.value}h</span>
                 </div>
               ))}
             </div>
-            <div className="mt-1.5">
-              <p className="text-xs text-gray-400">Total: {totalHours}h</p>
+            
+            <div className="mt-8 text-center">
+              <p className="text-lg font-medium mb-2">Total: {totalHours}h</p>
+              <p className="text-gray-400 text-sm max-w-[80%] mx-auto">
+                Suas horas produtivas durante esta semana, divididas em diferentes categorias de atividades.
+              </p>
+              
+              <button 
+                onClick={generateRetrospective}
+                className="mt-6 flex items-center gap-2 px-4 py-2 mx-auto text-sm rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+              >
+                <Share2 size={18} />
+                Gerar Retrospectiva Completa
+              </button>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-between items-center">
+            <div className="w-20 h-20 transition-all duration-700 ease-in-out">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={25}
+                    outerRadius={35}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`${value}h`, 'Tempo']}
+                    contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="flex-1 ml-2">
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1 transition-all duration-300 opacity-90">
+                {data.map((item, index) => (
+                  <div key={index} className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs text-gray-300">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-1.5">
+                <p className="text-xs text-gray-400">Total: {totalHours}h</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -181,3 +233,4 @@ const ProductivityChart: React.FC = () => {
 };
 
 export default ProductivityChart;
+
