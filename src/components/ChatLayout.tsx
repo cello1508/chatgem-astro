@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -124,18 +125,6 @@ const ChatLayout: React.FC = () => {
             )}
             <MessageList messages={messages} isTyping={isTyping} />
             <div className="p-4 pb-6 w-full">
-              <div className="flex flex-col space-y-3 mb-4">
-                <button
-                  onClick={handleNewConversation}
-                  className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                  <span>Nova Conversa</span>
-                </button>
-              </div>
               <ChatInput onSendMessage={handleSendMessage} disabled={isTyping} />
             </div>
           </>
