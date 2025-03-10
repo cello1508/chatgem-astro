@@ -1,13 +1,16 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User, LogIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { login, isAuthenticated } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,13 +19,15 @@ const Login = () => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
 
+  // Get the redirect path from location state or default to '/'
+  const from = location.state?.from?.pathname || '/';
+
   // Check if user is already logged in
-  React.useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +37,14 @@ const Login = () => {
     setTimeout(() => {
       // For demo purposes, accept any non-empty credentials
       if (username.trim() && password.trim()) {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('username', username);
+        login(username);
         
         toast({
           title: "Login bem-sucedido",
           description: "Bem-vindo de volta!",
         });
         
+        // Navigate to the redirect path or home
         navigate('/');
       } else {
         toast({

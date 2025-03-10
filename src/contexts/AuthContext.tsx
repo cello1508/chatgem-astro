@@ -21,18 +21,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedAuth = localStorage.getItem('isAuthenticated') === 'true';
     const storedUsername = localStorage.getItem('username');
     
+    console.log("AuthProvider initialized - stored auth:", storedAuth);
+    
     setIsAuthenticated(storedAuth);
     setUsername(storedUsername);
   }, []);
 
   const login = (username: string) => {
+    console.log("Login called with username:", username);
     localStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('username', username);
     setIsAuthenticated(true);
     setUsername(username);
+    
+    // Force navigation to home after login
+    console.log("Navigating to / after login");
+    navigate('/');
   };
 
   const logout = () => {
+    console.log("Logout called");
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('username');
     setIsAuthenticated(false);
