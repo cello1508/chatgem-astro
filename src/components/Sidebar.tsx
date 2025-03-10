@@ -1,13 +1,7 @@
+
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Headphones, Sun, Moon } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
-import { useTheme } from '@/hooks/use-theme';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   onClose: () => void;
@@ -22,19 +16,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
   ]);
 
-  const { theme, setTheme } = useTheme();
-
   const sections = [
     { id: 'chat', title: 'Assistente IA', icon: MessageSquare },
     { id: 'tasks', title: 'Tarefas', icon: CheckSquare },
     { id: 'notes', title: 'Anotações', icon: FileText },
     { id: 'calendar', title: 'Agenda', icon: Calendar },
     { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
-    { id: 'playlists', title: 'Playlists de FOCO EXTREMO', icon: Headphones },
   ];
 
   return (
-    <div className="h-full w-[280px] bg-sidebar flex flex-col">
+    <div className="h-full w-[280px] glass flex flex-col">
       {/* Header */}
       <div className="p-4 flex justify-between items-center border-b border-gray-800">
         <h2 className="font-medium">Productivity AI</h2>
@@ -49,25 +40,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
       {/* Sections */}
       <div className="p-3">
         <nav className="space-y-1">
-          {sections.map((section) => {
-            const isActive = activeSection === section.id;
-            return (
-              <button
-                key={section.id}
-                onClick={() => onChangeSection(section.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                  isActive
-                    ? section.id === 'tasks' 
-                      ? 'bg-[#2A3D2A] text-[#38D784]' 
-                      : 'bg-gray-800/50 text-white'
-                    : 'hover:bg-gray-700/30 text-white'
-                }`}
-              >
-                <section.icon size={18} />
-                <span>{section.title}</span>
-              </button>
-            );
-          })}
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => onChangeSection(section.id)}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                activeSection === section.id 
+                  ? 'bg-success/20 text-success' 
+                  : 'hover:bg-gray-700/30'
+              }`}
+            >
+              <section.icon size={18} />
+              <span>{section.title}</span>
+            </button>
+          ))}
         </nav>
       </div>
 
@@ -103,35 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         <ProductivityChart />
       </div>
 
-      {/* Footer with Theme Selector */}
+      {/* Footer */}
       <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-              <span className="text-sm font-semibold">U</span>
-            </div>
-            <div className="text-sm">Usuário</div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+            <span className="text-sm font-semibold">U</span>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 rounded-full hover:bg-gray-700/50 transition-colors">
-                <div className="w-5 h-5 rounded-full border-2 border-current" style={{
-                  backgroundColor: theme === 'light' ? '#fff' : theme === 'dark' ? '#0F0F0F' : '#9b87f5'
-                }} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('purple')}>
-                Purple
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="text-sm">Usuário</div>
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import TasksSection from './TasksSection';
 import NotesSection from './NotesSection';
 import CalendarSection from './CalendarSection';
 import PomodoroSection from './PomodoroSection';
-import PlaylistsSection from './PlaylistsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
@@ -99,8 +98,6 @@ const ChatLayout: React.FC = () => {
         return <CalendarSection />;
       case 'pomodoro':
         return <PomodoroSection />;
-      case 'playlists':
-        return <PlaylistsSection />;
       case 'chat':
       default:
         return (
