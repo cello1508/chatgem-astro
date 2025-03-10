@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Cloud } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Sun, CloudSun, Cloud, CloudRain, CloudSnow, CloudFog, CloudLightning } from 'lucide-react';
 
 interface ForecastDataPoint {
   time: string;
@@ -15,7 +16,7 @@ interface ForecastTimelineProps {
 }
 
 const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude }) => {
-  const [currentWeatherCode, setCurrentWeatherCode] = useState<number | null>(null);
+  const [forecastData, setForecastData] = useState<ForecastDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,9 +35,23 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
         const data = await response.json();
         
         if (data && data.hourly) {
-          // Get current hour to determine current weather
+          // Get current hour to show forecast from now onwards
           const currentHour = new Date().getHours();
-          setCurrentWeatherCode(data.hourly.weather_code[currentHour]);
+          
+          // Format the data for the chart - now showing 24 hours
+          const formattedData = data.hourly.time
+            .slice(currentHour, currentHour + 24) // Get next 24 hours from current hour
+            .map((time: string, index: number) => {
+              const timeDate = new Date(time);
+              return {
+                time: time,
+                temperature: data.hourly.temperature_2m[currentHour + index],
+                weatherCode: data.hourly.weather_code[currentHour + index],
+                formattedTime: timeDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              };
+            });
+
+          setForecastData(formattedData);
         }
       } catch (error) {
         console.error('Error fetching forecast data:', error);
@@ -51,70 +66,21 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
     }
   }, [latitude, longitude]);
 
-  const getWeatherGif = (code: number) => {
-    // Clear sky
-    if (code === 0) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTNhZ2JkdHQ3M3l0cnNxY2hmbThsaHlxNjU2cnczbngwOGVycWxhayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xkmQfH1TB0dLW/giphy.gif";
-    }
-    // Partly cloudy
-    if (code >= 1 && code <= 3) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDA3ZjY2NnMxMG5tbmZmMzFmcXNnNnpndXVlcHJuMm5tZW5qdXV4ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlQYOV7k3pB0ySI/giphy.gif";
-    }
-    // Fog
-    if (code >= 45 && code <= 48) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGNkbzYybmt5MWN2NnR4dTA5YnRxb3RnZWJoaGdnOG1pcHoxeHVidiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0MYz2cD8rAYOmbYY/giphy.gif";
-    }
-    // Drizzle or light rain
-    if (code >= 51 && code <= 57 || code >= 61 && code <= 65) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmRidndnbHk2MnBycnYwbzgycW1jaXMxZjQwZG5qbjRobXhicGEybCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t7Qb8P0JmXiTe/giphy.gif";
-    }
-    // Snow
-    if (code >= 71 && code <= 77 || code >= 85 && code <= 86) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTYxd2xnOXJxNXRiMGFubXFvMnBucnQ0c2ZoN3Qwa20xajB2bnhwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IgfbnOHLNXLSo/giphy.gif";
-    }
-    // Heavy rain
-    if (code >= 80 && code <= 82) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnhjemF0dDg2Z2duYW9jZnV2aTlmZDQ2bHNraHkzNTJqb2FrbW9mdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0MYAfGb5HlEqz7zi/giphy.gif";
-    }
-    // Thunderstorm
-    if (code >= 95 && code <= 99) {
-      return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjMzZThhMG5xdWtkcTZweHVwc3d6YzkwZmdiNGlmaTl2cXk3Z3IyeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oEjHB1EKuujDjYFWw/giphy.gif";
-    }
-    // Default partly cloudy
-    return "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDA3ZjY2NnMxMG5tbmZmMzFmcXNnNnpndXVlcHJuMm5tZW5qdXV4ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlQYOV7k3pB0ySI/giphy.gif";
-  };
-
   const getWeatherIcon = (code: number) => {
-    if (code === 0) return <Sun className="h-6 w-6 text-yellow-400" />;
-    if (code >= 1 && code <= 3) return <CloudSun className="h-6 w-6 text-gray-400" />;
-    if (code >= 45 && code <= 48) return <CloudFog className="h-6 w-6 text-gray-400" />;
-    if (code >= 51 && code <= 67) return <CloudRain className="h-6 w-6 text-blue-400" />;
-    if (code >= 71 && code <= 77) return <CloudSnow className="h-6 w-6 text-blue-200" />;
-    if (code >= 80 && code <= 82) return <CloudRain className="h-6 w-6 text-blue-500" />;
-    if (code >= 85 && code <= 86) return <CloudSnow className="h-6 w-6 text-blue-300" />;
-    if (code >= 95 && code <= 99) return <CloudLightning className="h-6 w-6 text-yellow-500" />;
-    return <Cloud className="h-6 w-6 text-gray-400" />;
-  };
-
-  const getWeatherDescription = (code: number): string => {
-    if (code === 0) return "Céu limpo";
-    if (code >= 1 && code <= 3) return "Parcialmente nublado";
-    if (code >= 45 && code <= 48) return "Nevoeiro";
-    if (code >= 51 && code <= 55) return "Garoa";
-    if (code >= 56 && code <= 57) return "Garoa congelante";
-    if (code >= 61 && code <= 65) return "Chuva";
-    if (code >= 66 && code <= 67) return "Chuva congelante";
-    if (code >= 71 && code <= 75) return "Neve";
-    if (code === 77) return "Granizo";
-    if (code >= 80 && code <= 82) return "Chuva forte";
-    if (code >= 85 && code <= 86) return "Neve forte";
-    if (code >= 95 && code <= 99) return "Tempestade";
-    return "Condições variáveis";
+    if (code === 0) return <Sun className="h-4 w-4 text-yellow-400" />;
+    if (code >= 1 && code <= 3) return <CloudSun className="h-4 w-4 text-gray-400" />;
+    if (code >= 45 && code <= 48) return <CloudFog className="h-4 w-4 text-gray-400" />;
+    if (code >= 51 && code <= 67) return <CloudRain className="h-4 w-4 text-blue-400" />;
+    if (code >= 71 && code <= 77) return <CloudSnow className="h-4 w-4 text-blue-200" />;
+    if (code >= 80 && code <= 82) return <CloudRain className="h-4 w-4 text-blue-500" />;
+    if (code >= 85 && code <= 86) return <CloudSnow className="h-4 w-4 text-blue-300" />;
+    if (code >= 95 && code <= 99) return <CloudLightning className="h-4 w-4 text-yellow-500" />;
+    return <Cloud className="h-4 w-4 text-gray-400" />;
   };
 
   if (loading) {
     return (
-      <div className="animate-pulse flex flex-col space-y-3 w-full h-40">
+      <div className="animate-pulse flex flex-col space-y-3 w-full h-24">
         <div className="h-full w-full bg-gray-700/30 rounded-md"></div>
       </div>
     );
@@ -128,23 +94,68 @@ const ForecastTimeline: React.FC<ForecastTimelineProps> = ({ latitude, longitude
     );
   }
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-[#222] border border-gray-700 rounded-md p-2 text-sm">
+          <p className="text-white">{data.formattedTime}</p>
+          <p className="text-blue-400">{`${data.temperature}°C`}</p>
+          <div className="flex items-center mt-1">
+            {getWeatherIcon(data.weatherCode)}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="w-full mt-2 flex flex-col items-center">
-      {currentWeatherCode !== null && (
-        <>
-          <div className="flex items-center mb-2">
-            {getWeatherIcon(currentWeatherCode)}
-            <span className="ml-2 text-gray-300">{getWeatherDescription(currentWeatherCode)}</span>
-          </div>
-          <div className="w-full h-40 overflow-hidden rounded-md relative">
-            <img 
-              src={getWeatherGif(currentWeatherCode)} 
-              alt={getWeatherDescription(currentWeatherCode)}
-              className="w-full h-full object-cover" 
-            />
-          </div>
-        </>
-      )}
+    <div className="w-full h-24 mt-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={forecastData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+          <XAxis 
+            dataKey="formattedTime" 
+            tick={{ fill: '#888', fontSize: 10 }}
+            stroke="#444"
+            tickLine={false}
+            axisLine={false}
+            minTickGap={30}
+          />
+          <YAxis 
+            domain={['auto', 'auto']}
+            tick={{ fill: '#888', fontSize: 10 }}
+            stroke="#444"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => `${Math.round(value)}°C`}
+            width={40}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Line 
+            type="monotone" 
+            dataKey="temperature" 
+            stroke="#33C3F0" 
+            strokeWidth={2}
+            dot={(props) => {
+              if (!props || !props.payload) return null;
+              const weatherCode = props.payload.weatherCode;
+              return (
+                <g transform={`translate(${props.cx},${props.cy})`} key={props.index}>
+                  <circle r={4} fill="#33C3F0" />
+                  <foreignObject width="12" height="12" x="-6" y="-6">
+                    <div className="flex items-center justify-center">
+                      {getWeatherIcon(weatherCode)}
+                    </div>
+                  </foreignObject>
+                </g>
+              );
+            }}
+            activeDot={{ r: 6, fill: '#33C3F0', stroke: '#1c1c1c', strokeWidth: 2 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
