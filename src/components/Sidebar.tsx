@@ -102,11 +102,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         </div>
       )}
 
-      {/* Spacer to ensure the chart has room to expand upward */}
-      <div className="flex-grow"></div>
-
-      {/* Productivity Chart - container with a placeholder for the absolute positioned chart */}
-      <div className="px-3 pb-3 relative" style={{ height: '100px' }}>
+      {/* Productivity Chart container */}
+      <div className="relative mb-16" style={{ height: '100px' }}>
         <ProductivityChart />
       </div>
 
@@ -137,8 +134,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-800 z-20 relative">
+      {/* Footer - fixed at the bottom */}
+      <div className="p-4 border-t border-gray-800 mt-auto z-20 relative bg-[#171717]/70 backdrop-blur-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">

@@ -57,12 +57,15 @@ const ProductivityChart: React.FC = () => {
   return (
     <>
       <div 
-        className={`glass rounded-xl p-4 w-full transition-all duration-700 cursor-pointer absolute ${
+        className={`glass rounded-xl p-4 w-full transition-all duration-700 cursor-pointer z-10 ${
           isHovered ? 'transform -translate-y-[calc(100%-60px)] h-[calc(100vh-120px)] z-30' : ''
         }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={{ transformOrigin: 'center bottom' }}
+        style={{ 
+          transformOrigin: 'center bottom',
+          marginBottom: '40px' // Add space below the chart to avoid overlap
+        }}
       >
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
@@ -233,4 +236,3 @@ const ProductivityChart: React.FC = () => {
 };
 
 export default ProductivityChart;
-
