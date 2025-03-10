@@ -87,7 +87,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   };
 
   const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    // Only close the panel if it's already expanded
+    // This allows the hover behavior to work for opening
+    if (isExpanded) {
+      setIsExpanded(false);
+    }
   };
 
   // Clean up interval on unmount
