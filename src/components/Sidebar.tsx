@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Puzzle, Grid } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Plug, Grid } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -118,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
           <div className="bg-gray-800/50 rounded-lg p-3">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium flex items-center gap-1.5">
-                <Puzzle size={15} /> Biblioteca de Plugins
+                <Plug size={15} /> Biblioteca de Plugins
               </h3>
               <button 
                 onClick={openPluginGallery}
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
         <DialogContent className="glass border-gray-800 max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Puzzle size={18} /> Galeria de Plugins
+              <Plug size={18} /> Galeria de Plugins
             </DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2 max-h-[70vh] overflow-y-auto p-1">
@@ -187,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
               }`}
               title="Biblioteca de Plugins"
             >
-              <Puzzle size={18} />
+              <Plug size={18} />
             </button>
             <button 
               onClick={openPluginGallery}
