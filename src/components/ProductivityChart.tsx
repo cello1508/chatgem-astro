@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Clock, Share2, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -61,18 +60,22 @@ const ProductivityChart: React.FC = () => {
   return (
     <>
       <div 
-        className="w-full transition-all duration-300"
+        className="w-full transition-all duration-500"
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
         <Collapsible
           open={isOpen}
-          className={`glass rounded-xl p-4 w-full transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-90 scale-98'}`}
+          className={`glass rounded-xl p-4 w-full transition-all duration-700 ease-in-out transform origin-top ${
+            isOpen 
+              ? 'opacity-100 scale-y-100' 
+              : 'opacity-90 scale-y-95'
+          }`}
         >
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Clock size={16} className={`text-success transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-70'}`} />
-              <h3 className={`text-sm font-medium transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-70'}`}>Uso de IA</h3>
+              <Clock size={16} className={`text-success transition-all duration-500 ${isOpen ? 'opacity-100' : 'opacity-70'}`} />
+              <h3 className={`text-sm font-medium transition-all duration-500 ${isOpen ? 'opacity-100' : 'opacity-70'}`}>Uso de IA</h3>
             </div>
             {isOpen && (
               <div className="flex items-center gap-2 animate-fade-in">
@@ -94,8 +97,8 @@ const ProductivityChart: React.FC = () => {
             )}
           </div>
           
-          <CollapsibleContent className="animate-slide-in">
-            <div className="flex flex-col items-center justify-center pb-2 mt-4">
+          <CollapsibleContent className="transition-all duration-700 ease-in-out">
+            <div className="flex flex-col items-center justify-center pb-2 mt-4 transition-all duration-500 transform origin-top">
               <div 
                 className="w-full h-[100px] mx-auto relative"
                 onMouseEnter={() => setIsHovering(true)}
@@ -129,7 +132,7 @@ const ProductivityChart: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2 transition-all duration-500">
                 {data.map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
@@ -143,7 +146,7 @@ const ProductivityChart: React.FC = () => {
                 ))}
               </div>
               
-              <div className="mt-4 text-center">
+              <div className="mt-4 text-center transition-all duration-500">
                 <p className="text-sm font-medium">
                   {showUsage 
                     ? `Total: ${totalUses} consultas` 
@@ -172,7 +175,6 @@ const ProductivityChart: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {/* Chart in the dialog with colored labels */}
           <div className="flex flex-col items-center my-4">
             <div className="w-40 h-40 mx-auto mb-4 animate-[spin_8s_linear_infinite]">
               <ResponsiveContainer width="100%" height="100%">
@@ -206,7 +208,6 @@ const ProductivityChart: React.FC = () => {
             </div>
           </div>
           
-          {/* Dark box with report */}
           <div className="bg-[#1A2032] rounded-md p-6 my-2 text-white whitespace-pre-wrap">
             {reportText}
           </div>
