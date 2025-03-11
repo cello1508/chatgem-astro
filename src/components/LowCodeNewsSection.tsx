@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ExternalLink, RefreshCw, Youtube, Newspaper, Filter, Info, Users, Handshake, Briefcase, User, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 type NewsType = 'all' | 'video' | 'article';
 type JobType = 'all' | 'hire' | 'get-hired';
@@ -40,6 +41,7 @@ const LowCodeNewsSection: React.FC = () => {
   const [isHovering, setIsHovering] = useState<number | null>(null);
   const [partnerDialogOpen, setPartnerDialogOpen] = useState(false);
   const [jobInfoDialogOpen, setJobInfoDialogOpen] = useState(false);
+  const [partnershipRequiredDialogOpen, setPartnershipRequiredDialogOpen] = useState(false);
 
   const news: NewsItem[] = [
     {
@@ -200,6 +202,10 @@ const LowCodeNewsSection: React.FC = () => {
 
   const handleJobFilter = (type: JobType) => {
     setActiveJobTab(type);
+  };
+
+  const handleJobAction = (action: string) => {
+    setPartnershipRequiredDialogOpen(true);
   };
 
   return (
@@ -416,13 +422,13 @@ const LowCodeNewsSection: React.FC = () => {
                     
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-gray-400 text-sm">{job.posted}</span>
-                      <a 
-                        href={job.contactUrl}
+                      <button 
+                        onClick={() => handleJobAction(job.type === 'hire' ? 'apply' : 'contact')}
                         className="text-success hover:text-success/80 flex items-center gap-1 text-sm transition-colors"
                       >
                         {job.type === 'hire' ? 'Candidatar-se' : 'Contatar profissional'}
                         <ExternalLink size={14} />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -537,7 +543,10 @@ const LowCodeNewsSection: React.FC = () => {
                   <li>Economize tempo no processo de contratação</li>
                   <li>Encontre profissionais para projetos pontuais ou posições permanentes</li>
                 </ul>
-                <button className="mt-4 w-full bg-blue-900/50 hover:bg-blue-800/50 text-blue-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2">
+                <button 
+                  className="mt-4 w-full bg-blue-900/50 hover:bg-blue-800/50 text-blue-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                  onClick={() => setPartnershipRequiredDialogOpen(true)}
+                >
                   Publicar vaga <Briefcase size={16} />
                 </button>
               </div>
@@ -553,7 +562,10 @@ const LowCodeNewsSection: React.FC = () => {
                   <li>Conecte-se diretamente com potenciais contratantes</li>
                   <li>Aumente sua visibilidade no mercado low-code/no-code</li>
                 </ul>
-                <button className="mt-4 w-full bg-emerald-900/50 hover:bg-emerald-800/50 text-emerald-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2">
+                <button 
+                  className="mt-4 w-full bg-emerald-900/50 hover:bg-emerald-800/50 text-emerald-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                  onClick={() => setPartnershipRequiredDialogOpen(true)}
+                >
                   Cadastrar perfil <FileText size={16} />
                 </button>
               </div>
@@ -570,7 +582,10 @@ const LowCodeNewsSection: React.FC = () => {
               <div className="flex justify-end mt-3">
                 <button 
                   className="bg-success hover:bg-success/80 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2"
-                  onClick={() => setJobInfoDialogOpen(false)}
+                  onClick={() => {
+                    setJobInfoDialogOpen(false);
+                    setPartnershipRequiredDialogOpen(true);
+                  }}
                 >
                   Quero participar
                   <ExternalLink size={16} />
@@ -580,8 +595,70 @@ const LowCodeNewsSection: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={partnershipRequiredDialogOpen} onOpenChange={setPartnershipRequiredDialogOpen}>
+        <DialogContent className="glass border-gray-800 max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Users size={20} className="text-success" /> Parceria Necessária
+            </DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
+              Para participar da seção "Contrate ou Seja Contratado", você precisa ser nosso parceiro
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4 space-y-4">
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Handshake size={18} className="text-success" /> 
+                Por que ser parceiro?
+              </h3>
+              <p className="text-gray-300">
+                Nossa seção de vagas e profissionais é exclusiva para parceiros verificados. Isso garante a qualidade das oportunidades e protege tanto empresas quanto profissionais.
+              </p>
+            </div>
+
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Info size={18} className="text-success" /> 
+                Vantagens da parceria
+              </h3>
+              <ul className="text-gray-300 space-y-2 list-disc pl-5">
+                <li>Acesso ilimitado a vagas e perfis de profissionais</li>
+                <li>Destacamento prioritário nas listagens</li>
+                <li>Verificação de qualidade para maior credibilidade</li>
+                <li>Suporte personalizado do nosso time</li>
+              </ul>
+            </div>
+
+            <div className="flex justify-between items-center mt-6">
+              <button 
+                className="text-gray-400 hover:text-gray-300 transition-colors"
+                onClick={() => setPartnershipRequiredDialogOpen(false)}
+              >
+                Voltar mais tarde
+              </button>
+              
+              <button 
+                className="bg-success hover:bg-success/80 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+                onClick={() => {
+                  setPartnershipRequiredDialogOpen(false);
+                  setPartnerDialogOpen(true);
+                  toast.success("Redirecionando para informações de parceria", {
+                    description: "Conheça os benefícios de ser nosso parceiro"
+                  });
+                }}
+              >
+                Quero ser parceiro
+                <ExternalLink size={16} />
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default LowCodeNewsSection;
+
