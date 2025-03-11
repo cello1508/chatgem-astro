@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Plug, Grid } from 'lucide-react';
+import { X, Plus, MessageSquare, Calendar, CheckSquare, FileText, Clock, Plug, Grid, Newspaper } from 'lucide-react';
 import ProductivityChart from './ProductivityChart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -19,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, onChangeSection, activeSecti
     { id: 'notes', title: 'Anotações', icon: FileText },
     { id: 'calendar', title: 'Agenda', icon: Calendar },
     { id: 'pomodoro', title: 'Pomodoro', icon: Clock },
+    { id: 'lowcode-news', title: 'Noticias Low-Code', icon: Newspaper },
   ];
   
   const plugins = [
