@@ -1,37 +1,40 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
+import { Send, Plus, ChevronUp, ChevronDown, MessageSquare, Lock, Unlock } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { webhookService } from '@/services/webhookService';
+import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatInputProps {
   onSendMessage: (message: string, modelId?: string) => void;
   disabled?: boolean;
+  conversationId?: string;
+  onNewConversation?: () => void;
+  onSelectConversation?: (id: string) => void;
+  conversations?: any[];
+  isEncrypted?: boolean;
+  onEncryptToggle?: () => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ 
+  onSendMessage, 
+  disabled = false,
+  conversationId,
+  onNewConversation,
+  onSelectConversation,
+  conversations = [],
+  isEncrypted = false,
+  onEncryptToggle
+}) => {
   const [message, setMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { toast } = useToast();
   
-  const conversations = [
-    { id: '1', title: 'Conversa anterior 1', date: '12 Jun' },
-    { id: '2', title: 'Ajuda com código React', date: '10 Jun' },
-    { id: '3', title: 'Ideias para novo projeto', date: '8 Jun' },
-    { id: '4', title: 'Dúvidas sobre TypeScript', date: '7 Jun' },
-    { id: '5', title: 'Otimização de performance', date: '5 Jun' },
-    { id: '6', title: 'Implementação de API REST', date: '3 Jun' },
-    { id: '7', title: 'Arquitetura de microsserviços', date: '1 Jun' },
-    { id: '8', title: 'Debug de aplicações React', date: '30 Mai' },
-    { id: '9', title: 'Testes automatizados', date: '28 Mai' },
-    { id: '10', title: 'Integração contínua', date: '26 Mai' },
-    { id: '11', title: 'Design system com Tailwind', date: '24 Mai' },
-    { id: '12', title: 'Animações com Framer Motion', date: '22 Mai' },
-    { id: '13', title: 'Estratégias de SEO', date: '20 Mai' },
-  ];
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
@@ -97,6 +100,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     }
   };
 
+  const handleNewConversation = () => {
+    if (onNewConversation) {
+      onNewConversation();
+      handleClosePanel();
+    }
+  };
+
+  const handleSelectConversation = (id: string) => {
+    if (onSelectConversation) {
+      onSelectConversation(id);
+      handleClosePanel();
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (holdTimerRef.current) {
@@ -129,10 +146,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                 onKeyDown={handleKeyDown}
                 placeholder="Escreva uma mensagem..."
                 disabled={disabled}
-                className="w-full resize-none bg-transparent px-4 py-3.5 pr-12 text-gray-100 focus:outline-none placeholder:text-gray-500 disabled:opacity-50 max-h-[200px] min-h-[56px]"
+                className="w-full resize-none bg-transparent px-4 py-3.5 pr-24 text-gray-100 focus:outline-none placeholder:text-gray-500 disabled:opacity-50 max-h-[200px] min-h-[56px]"
                 rows={1}
               />
-              <div className="absolute right-12 bottom-3">
+              <div className="absolute right-12 bottom-3 flex gap-1">
+                {onEncryptToggle && (
+                  <button
+                    type="button"
+                    className="p-1.5 rounded-lg transition-all hover:bg-gray-700/30"
+                    title={isEncrypted ? "Desativar criptografia" : "Ativar criptografia"}
+                    onClick={onEncryptToggle}
+                  >
+                    {isEncrypted ? <Lock size={18} className="text-amber-500" /> : <Unlock size={18} />}
+                  </button>
+                )}
                 <div 
                   className="relative"
                   onMouseEnter={handleMouseEnter}
@@ -196,6 +223,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           <button 
             className="w-full bg-success/10 text-success rounded-lg p-3 flex items-center gap-2 hover:bg-success/20 transition-all mb-3 transform hover:scale-[1.02] active:scale-100 duration-500 animate-slide-in" 
             style={{ animationDuration: '3s', animationDelay: '0.8s', transition: 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+            onClick={handleNewConversation}
           >
             <Plus size={18} />
             <span>Nova conversa</span>
@@ -216,17 +244,25 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
                 <button
                   key={convo.id}
                   className="w-full text-left p-2.5 rounded-lg hover:bg-gray-700/30 flex items-start gap-2 transition-all transform hover:translate-x-1 hover:bg-gray-700/50 duration-500 animate-slide-in"
-                  onClick={handleClosePanel}
+                  onClick={() => handleSelectConversation(convo.id)}
                   style={{ 
                     animationDuration: '3s',
                     animationDelay: `${2 + (index * 0.2)}s`,
                     transition: 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
                   }}
                 >
-                  <MessageSquare size={16} className="mt-0.5 flex-shrink-0" />
+                  <div className="flex items-center gap-1 mt-0.5 flex-shrink-0">
+                    <MessageSquare size={16} />
+                    {convo.is_encrypted && <Lock size={12} className="text-amber-500" />}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{convo.title}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{convo.date}</p>
+                    <p className="text-sm truncate">{convo.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(convo.updated_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short'
+                      })}
+                    </p>
                   </div>
                 </button>
               ))}

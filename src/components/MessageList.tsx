@@ -6,9 +6,18 @@ import { MessageType } from '@/types/chat';
 interface MessageListProps {
   messages: MessageType[];
   isTyping: boolean;
+  conversationId?: string;
+  needsDecryption?: boolean;
+  onDecryptMessage?: (message: MessageType) => Promise<MessageType>;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, isTyping }) => {
+const MessageList: React.FC<MessageListProps> = ({ 
+  messages, 
+  isTyping, 
+  conversationId,
+  needsDecryption,
+  onDecryptMessage
+}) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,6 +32,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isTyping }) => {
             key={message.id} 
             message={message}
             isLast={index === messages.length - 1 && message.role === 'assistant'} 
+            isEncrypted={needsDecryption && message.content === 'ENCRYPTED_CONTENT'}
+            onDecrypt={needsDecryption && onDecryptMessage ? () => onDecryptMessage(message) : undefined}
           />
         ))}
         
