@@ -232,8 +232,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     
     const newPosition = Math.max(0, Math.min(100, ((e.clientX - containerRect.left) / containerWidth) * 100));
     
-    setDragPosition(newPosition);
-    
     setShowFearGreedIndex(newPosition > 20);
   };
 
@@ -242,13 +240,7 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragEnd);
     
-    if (dragPosition > 40) {
-      setDragPosition(100);
-      setShowFearGreedIndex(true);
-    } else {
-      setDragPosition(0);
-      setShowFearGreedIndex(false);
-    }
+    setShowFearGreedIndex(!showFearGreedIndex);
   };
 
   const toggleWidget = () => {

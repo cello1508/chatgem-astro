@@ -84,19 +84,19 @@ const ProductivityChart: React.FC = () => {
         
         <div className="flex flex-col items-center justify-center pb-2">
           <div 
-            className={`w-[180px] h-[100px] mx-auto transition-all duration-500 relative ${isHovering ? 'h-[180px]' : ''}`}
+            className="w-full h-[140px] mx-auto relative"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
-            <div className={`w-full h-full ${isHovering ? 'animate-[spin_5s_linear_infinite]' : ''}`}>
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={30}
-                    outerRadius={40}
+                    innerRadius={40}
+                    outerRadius={55}
                     paddingAngle={2}
                     dataKey={showUsage ? "value" : "spending"}
                   >
