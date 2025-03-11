@@ -84,7 +84,7 @@ const ProductivityChart: React.FC = () => {
         
         <div className="flex flex-col items-center justify-center pb-2">
           <div 
-            className="w-full h-[100px] mx-auto relative"
+            className="w-full h-[100px] mx-auto relative transition-all duration-300"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
@@ -116,7 +116,7 @@ const ProductivityChart: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
+          <div className={`grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2 transition-all duration-300 ${isHovering ? '' : 'blur-sm'}`}>
             {data.map((item, index) => (
               <div key={index} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
@@ -130,7 +130,7 @@ const ProductivityChart: React.FC = () => {
             ))}
           </div>
           
-          <div className="mt-4 text-center">
+          <div className={`mt-4 text-center transition-all duration-300 ${isHovering ? '' : 'blur-sm'}`}>
             <p className="text-sm font-medium">
               {showUsage 
                 ? `Total: ${totalUses} consultas` 
