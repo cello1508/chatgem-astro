@@ -16,6 +16,7 @@ const BitcoinChart: React.FC<ChartProps> = ({ period, priceTrend = 'neutral' }) 
   const [chartData, setChartData] = useState<BitcoinDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [trendColor, setTrendColor] = useState('#38D784'); // Default to green
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     // Set the chart color based on the price trend
@@ -96,14 +97,21 @@ const BitcoinChart: React.FC<ChartProps> = ({ period, priceTrend = 'neutral' }) 
 
   if (loading) {
     return (
-      <div className="animate-pulse flex flex-col space-y-3 w-full h-36">
+      <div className="animate-pulse flex flex-col space-y-3 w-full h-24">
         <div className="h-full w-full bg-gray-700/30 rounded-md"></div>
       </div>
     );
   }
 
+  const chartHeight = isHovered ? 'h-36' : 'h-24';
+  const transitionClass = 'transition-all duration-300 ease-in-out';
+
   return (
-    <div className="w-full h-36 mt-2">
+    <div 
+      className={`w-full ${chartHeight} ${transitionClass} mt-2`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
