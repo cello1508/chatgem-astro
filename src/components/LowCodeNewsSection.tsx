@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
-import { ExternalLink, RefreshCw, Youtube, Newspaper, Filter, Info, Users, HandShake } from 'lucide-react';
+import { ExternalLink, RefreshCw, Youtube, Newspaper, Filter, Info, Users, Handshake, Briefcase, User, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 type NewsType = 'all' | 'video' | 'article';
+type JobType = 'all' | 'hire' | 'get-hired';
 
 interface NewsItem {
   id: number;
@@ -19,10 +19,25 @@ interface NewsItem {
   views?: string;
 }
 
+interface JobListing {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  salary?: string;
+  type: 'hire' | 'get-hired';
+  skills: string[];
+  posted: string;
+  contactUrl: string;
+}
+
 const LowCodeNewsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NewsType>('all');
+  const [activeJobTab, setActiveJobTab] = useState<JobType>('all');
   const [isHovering, setIsHovering] = useState<number | null>(null);
   const [partnerDialogOpen, setPartnerDialogOpen] = useState(false);
+  const [jobInfoDialogOpen, setJobInfoDialogOpen] = useState(false);
 
   const news: NewsItem[] = [
     {
@@ -108,12 +123,81 @@ const LowCodeNewsSection: React.FC = () => {
     }
   ];
 
+  const jobListings: JobListing[] = [
+    {
+      id: 1,
+      title: "Desenvolvedor Low-Code Pleno",
+      company: "TechSolutions",
+      location: "Remoto",
+      description: "Estamos buscando um desenvolvedor com experiência em plataformas low-code como Power Apps, OutSystems ou Mendix para desenvolver soluções empresariais.",
+      salary: "R$ 8.000 - R$ 10.000",
+      type: "hire",
+      skills: ["Power Apps", "OutSystems", "SQL", "Integração de APIs"],
+      posted: "2 dias atrás",
+      contactUrl: "#"
+    },
+    {
+      id: 2,
+      title: "Especialista Bubble.io",
+      company: "StartupInova",
+      location: "Híbrido - São Paulo",
+      description: "Preciso de um especialista em Bubble.io para desenvolvimento de MVP para fintech. Experiência com integrações de pagamento é um diferencial.",
+      salary: "R$ 120/hora",
+      type: "hire",
+      skills: ["Bubble.io", "Workflows", "Integrações de API", "UI/UX"],
+      posted: "5 dias atrás",
+      contactUrl: "#"
+    },
+    {
+      id: 3,
+      title: "Desenvolvedor Front-End com Webflow",
+      company: "Agência Digital",
+      location: "Remoto",
+      description: "Buscamos desenvolvedor front-end com experiência em Webflow para projetos de sites corporativos e e-commerce.",
+      type: "hire",
+      skills: ["Webflow", "HTML/CSS", "JavaScript", "E-commerce"],
+      posted: "1 semana atrás",
+      contactUrl: "#"
+    },
+    {
+      id: 4,
+      title: "Desenvolvedor Full-Stack disponível para projetos",
+      company: "",
+      location: "Remoto",
+      description: "Desenvolvedor com 5 anos de experiência em plataformas low-code e no-code como Webflow, Bubble e Airtable. Especialista em integrações e automações.",
+      salary: "R$ 90/hora",
+      type: "get-hired",
+      skills: ["Webflow", "Bubble", "Airtable", "Zapier", "Make"],
+      posted: "3 dias atrás",
+      contactUrl: "#"
+    },
+    {
+      id: 5,
+      title: "Consultor Power Platform disponível",
+      company: "",
+      location: "Remoto / São Paulo",
+      description: "Consultor certificado Microsoft com 4 anos de experiência em Power Apps, Power Automate e Power BI. Desenvolvimento de soluções empresariais e integração com sistemas Microsoft.",
+      type: "get-hired",
+      skills: ["Power Apps", "Power Automate", "Power BI", "SharePoint", "Dataverse"],
+      posted: "1 semana atrás",
+      contactUrl: "#"
+    }
+  ];
+
   const filteredNews = activeTab === 'all' 
     ? news 
     : news.filter(item => item.type === activeTab);
 
+  const filteredJobs = activeJobTab === 'all'
+    ? jobListings
+    : jobListings.filter(item => item.type === activeJobTab);
+
   const handleFilter = (type: NewsType) => {
     setActiveTab(type);
+  };
+
+  const handleJobFilter = (type: JobType) => {
+    setActiveJobTab(type);
   };
 
   return (
@@ -233,9 +317,94 @@ const LowCodeNewsSection: React.FC = () => {
             </div>
           ))}
         </div>
+
+        <div className="mt-8 border-t border-gray-800 pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-semibold">Contrate ou Seja Contratado</h2>
+              <button 
+                onClick={() => setJobInfoDialogOpen(true)}
+                className="text-success hover:text-success/80 p-1 rounded-full hover:bg-success/10 transition-all flex items-center justify-center"
+                title="Informações sobre vagas e profissionais"
+              >
+                <Info size={16} />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Tabs value={activeJobTab} onValueChange={(value) => handleJobFilter(value as JobType)}>
+                <TabsList className="bg-gray-800/50">
+                  <TabsTrigger value="all" className="text-xs">
+                    Todos
+                  </TabsTrigger>
+                  <TabsTrigger value="hire" className="text-xs">
+                    <Briefcase size={14} className="mr-1" />
+                    Vagas
+                  </TabsTrigger>
+                  <TabsTrigger value="get-hired" className="text-xs">
+                    <User size={14} className="mr-1" />
+                    Profissionais
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {filteredJobs.map((job) => (
+              <div 
+                key={job.id}
+                className="glass border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-all hover:bg-gray-800/30"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-lg">{job.title}</h3>
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        job.type === 'hire' ? 'bg-blue-900/50 text-blue-300' : 'bg-emerald-900/50 text-emerald-300'
+                      }`}>
+                        {job.type === 'hire' ? 'Vaga' : 'Profissional'}
+                      </span>
+                    </div>
+                    
+                    {job.company && (
+                      <p className="text-gray-400 text-sm mt-1">{job.company} • {job.location}</p>
+                    )}
+                    {!job.company && (
+                      <p className="text-gray-400 text-sm mt-1">{job.location}</p>
+                    )}
+                  </div>
+                  
+                  {job.salary && (
+                    <span className="text-success font-medium">{job.salary}</span>
+                  )}
+                </div>
+                
+                <p className="text-gray-300 my-3">{job.description}</p>
+                
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {job.skills.map((skill, index) => (
+                    <span key={index} className="text-xs bg-gray-800 px-2 py-1 rounded-md">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-gray-400 text-sm">{job.posted}</span>
+                  <a 
+                    href={job.contactUrl}
+                    className="text-success hover:text-success/80 flex items-center gap-1 text-sm transition-colors"
+                  >
+                    {job.type === 'hire' ? 'Candidatar-se' : 'Contatar profissional'}
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Partner Information Dialog */}
       <Dialog open={partnerDialogOpen} onOpenChange={setPartnerDialogOpen}>
         <DialogContent className="glass border-gray-800 max-w-2xl">
           <DialogHeader>
@@ -302,6 +471,84 @@ const LowCodeNewsSection: React.FC = () => {
                 Quero ser parceiro
                 <ExternalLink size={16} />
               </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={jobInfoDialogOpen} onOpenChange={setJobInfoDialogOpen}>
+        <DialogContent className="glass border-gray-800 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Handshake size={20} className="text-success" /> Contrate ou Seja Contratado
+            </DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
+              Conectando empresas e profissionais do ecossistema low-code/no-code
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4 space-y-4">
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Handshake size={18} className="text-success" /> 
+                Como funciona?
+              </h3>
+              <p className="text-gray-300">
+                Nossa plataforma conecta empresas que precisam de talentos em desenvolvimento low-code/no-code com profissionais especializados nessas tecnologias. Publicamos vagas e perfis de profissionais pré-selecionados para garantir oportunidades de qualidade.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="glass border border-gray-800 p-4 rounded-lg">
+                <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                  <Briefcase size={18} className="text-success" /> 
+                  Para Empresas
+                </h3>
+                <ul className="text-gray-300 space-y-2 list-disc pl-5">
+                  <li>Publique vagas para especialistas em tecnologias low-code/no-code</li>
+                  <li>Acesse um pool de talentos pré-qualificados</li>
+                  <li>Economize tempo no processo de contratação</li>
+                  <li>Encontre profissionais para projetos pontuais ou posições permanentes</li>
+                </ul>
+                <button className="mt-4 w-full bg-blue-900/50 hover:bg-blue-800/50 text-blue-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2">
+                  Publicar vaga <Briefcase size={16} />
+                </button>
+              </div>
+
+              <div className="glass border border-gray-800 p-4 rounded-lg">
+                <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                  <User size={18} className="text-success" /> 
+                  Para Profissionais
+                </h3>
+                <ul className="text-gray-300 space-y-2 list-disc pl-5">
+                  <li>Destaque seu perfil para empresas que buscam seu conhecimento</li>
+                  <li>Encontre projetos alinhados com suas habilidades</li>
+                  <li>Conecte-se diretamente com potenciais contratantes</li>
+                  <li>Aumente sua visibilidade no mercado low-code/no-code</li>
+                </ul>
+                <button className="mt-4 w-full bg-emerald-900/50 hover:bg-emerald-800/50 text-emerald-300 py-2 rounded-lg transition-all flex items-center justify-center gap-2">
+                  Cadastrar perfil <FileText size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Info size={18} className="text-success" /> 
+                Como participar
+              </h3>
+              <p className="text-gray-300">
+                Para publicar vagas ou cadastrar seu perfil profissional, entre em contato com nossa equipe. Realizamos uma curadoria para garantir a qualidade das oportunidades e profissionais em nossa plataforma.
+              </p>
+              <div className="flex justify-end mt-3">
+                <button 
+                  className="bg-success hover:bg-success/80 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+                  onClick={() => setJobInfoDialogOpen(false)}
+                >
+                  Quero participar
+                  <ExternalLink size={16} />
+                </button>
+              </div>
             </div>
           </div>
         </DialogContent>
