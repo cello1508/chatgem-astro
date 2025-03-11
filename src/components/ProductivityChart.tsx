@@ -61,21 +61,21 @@ const ProductivityChart: React.FC = () => {
   return (
     <>
       <div 
-        className="w-full"
+        className="w-full transition-all duration-300"
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
         <Collapsible
           open={isOpen}
-          className="glass rounded-xl p-4 w-full"
+          className={`glass rounded-xl p-4 w-full transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-90 scale-98'}`}
         >
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Clock size={16} className="text-success" />
-              <h3 className="text-sm font-medium">Uso de IA</h3>
+              <Clock size={16} className={`text-success transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-70'}`} />
+              <h3 className={`text-sm font-medium transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-70'}`}>Uso de IA</h3>
             </div>
             {isOpen && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 animate-fade-in">
                 <button 
                   className="bg-transparent hover:bg-gray-700/30 p-1.5 rounded-full transition-colors"
                   onClick={toggleView}
@@ -94,7 +94,7 @@ const ProductivityChart: React.FC = () => {
             )}
           </div>
           
-          <CollapsibleContent>
+          <CollapsibleContent className="animate-slide-in">
             <div className="flex flex-col items-center justify-center pb-2 mt-4">
               <div 
                 className="w-full h-[100px] mx-auto relative"
