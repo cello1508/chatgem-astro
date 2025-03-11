@@ -26,6 +26,7 @@ const ProductivityChart: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reportText, setReportText] = useState('');
   const [showUsage, setShowUsage] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
   
   const generateReport = () => {
     // Generate AI usage report
@@ -83,32 +84,36 @@ const ProductivityChart: React.FC = () => {
         
         <div className="flex flex-col items-center justify-center pb-2">
           <div 
-            className="w-[180px] h-[100px] mx-auto transition-all duration-300 hover:h-[180px] relative"
+            className={`w-[180px] h-[100px] mx-auto transition-all duration-500 relative ${isHovering ? 'h-[180px]' : ''}`}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={30}
-                  outerRadius={40}
-                  paddingAngle={2}
-                  dataKey={showUsage ? "value" : "spending"}
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [
-                    showUsage ? `${value} consultas` : `$${value.toFixed(2)}`, 
-                    showUsage ? 'Uso' : 'Gasto'
-                  ]}
-                  contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className={`w-full h-full ${isHovering ? 'animate-[spin_5s_linear_infinite]' : ''}`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={40}
+                    paddingAngle={2}
+                    dataKey={showUsage ? "value" : "spending"}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [
+                      showUsage ? `${value} consultas` : `$${value.toFixed(2)}`, 
+                      showUsage ? 'Uso' : 'Gasto'
+                    ]}
+                    contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
@@ -154,7 +159,7 @@ const ProductivityChart: React.FC = () => {
           
           {/* Chart in the dialog with colored labels */}
           <div className="flex flex-col items-center my-4">
-            <div className="w-40 h-40 mx-auto mb-4">
+            <div className="w-40 h-40 mx-auto mb-4 animate-[spin_8s_linear_infinite]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
