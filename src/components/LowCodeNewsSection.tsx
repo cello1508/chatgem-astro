@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { ExternalLink, RefreshCw, Youtube, Newspaper, Filter } from 'lucide-react';
+import { ExternalLink, RefreshCw, Youtube, Newspaper, Filter, Info, Users, HandShake } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 type NewsType = 'all' | 'video' | 'article';
 
@@ -21,6 +22,7 @@ interface NewsItem {
 const LowCodeNewsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NewsType>('all');
   const [isHovering, setIsHovering] = useState<number | null>(null);
+  const [partnerDialogOpen, setPartnerDialogOpen] = useState(false);
 
   const news: NewsItem[] = [
     {
@@ -117,7 +119,16 @@ const LowCodeNewsSection: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="border-b border-gray-800 p-4 flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Notícias Low-Code</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">Notícias Low-Code</h2>
+          <button 
+            onClick={() => setPartnerDialogOpen(true)}
+            className="text-success hover:text-success/80 p-1 rounded-full hover:bg-success/10 transition-all flex items-center justify-center"
+            title="Informações sobre parcerias"
+          >
+            <Info size={16} />
+          </button>
+        </div>
         <div className="flex items-center gap-2">
           <Tabs value={activeTab} onValueChange={(value) => handleFilter(value as NewsType)}>
             <TabsList className="bg-gray-800/50">
@@ -223,6 +234,78 @@ const LowCodeNewsSection: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Partner Information Dialog */}
+      <Dialog open={partnerDialogOpen} onOpenChange={setPartnerDialogOpen}>
+        <DialogContent className="glass border-gray-800 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Users size={20} className="text-success" /> Sistema de Parceiros
+            </DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
+              Publicar conteúdo na seção de Notícias Low-Code
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4 space-y-4">
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Users size={18} className="text-success" /> 
+                O que é o Programa de Parceiros?
+              </h3>
+              <p className="text-gray-300">
+                Nosso Programa de Parceiros permite que especialistas em desenvolvimento low-code e no-code publiquem conteúdo diretamente em nossa plataforma, alcançando milhares de usuários interessados nesse ecossistema.
+              </p>
+            </div>
+
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <ExternalLink size={18} className="text-success" /> 
+                Benefícios da Parceria
+              </h3>
+              <ul className="text-gray-300 space-y-2 list-disc pl-5">
+                <li>Visibilidade para sua marca/conteúdo em um público-alvo qualificado</li>
+                <li>Tráfego direcionado para seu site, canal ou plataforma</li>
+                <li>Posicionamento como autoridade no segmento low-code/no-code</li>
+                <li>Acesso a métricas detalhadas de engajamento com seu conteúdo</li>
+              </ul>
+            </div>
+
+            <div className="glass border border-gray-800 p-4 rounded-lg">
+              <h3 className="font-medium text-lg mb-2 flex items-center gap-2">
+                <Newspaper size={18} className="text-success" /> 
+                Tipos de Conteúdo
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+                <div className="flex items-start gap-2">
+                  <Youtube size={18} className="text-success mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Vídeos</p>
+                    <p className="text-sm">Tutoriais, análises, comparativos e novidades sobre tecnologias low-code/no-code</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Newspaper size={18} className="text-success mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Artigos</p>
+                    <p className="text-sm">Publicações, estudos de caso, notícias e guias sobre desenvolvimento low-code</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button 
+                className="bg-success hover:bg-success/80 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+                onClick={() => setPartnerDialogOpen(false)}
+              >
+                Quero ser parceiro
+                <ExternalLink size={16} />
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
