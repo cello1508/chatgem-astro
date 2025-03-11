@@ -97,13 +97,13 @@ const BitcoinChart: React.FC<ChartProps> = ({ period, priceTrend = 'neutral' }) 
 
   if (loading) {
     return (
-      <div className="animate-pulse flex flex-col space-y-3 w-full h-24">
+      <div className="animate-pulse flex flex-col space-y-3 w-full h-16">
         <div className="h-full w-full bg-gray-700/30 rounded-md"></div>
       </div>
     );
   }
 
-  const chartHeight = isHovered ? 'h-36' : 'h-24';
+  const chartHeight = isHovered ? 'h-36' : 'h-16';
   const transitionClass = 'transition-all duration-300 ease-in-out';
 
   return (
