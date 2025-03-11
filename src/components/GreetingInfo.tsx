@@ -54,7 +54,6 @@ const GreetingInfo: React.FC<GreetingInfoProps> = ({
   const [regionName, setRegionName] = useState<string | null>(null);
   const [isWidgetDragging, setIsWidgetDragging] = useState(false);
   const [showFearGreedIndex, setShowFearGreedIndex] = useState(false);
-  const [dragPosition, setDragPosition] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
