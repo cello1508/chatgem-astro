@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LockKeyhole, Unlock } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, LockKeyhole, Shield, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface PasswordDialogProps {
@@ -34,6 +34,8 @@ const PasswordDialog: React.FC<PasswordDialogProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,57 +91,107 @@ const PasswordDialog: React.FC<PasswordDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[#171717] border border-gray-800 text-gray-100">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {isCreating ? <LockKeyhole size={18} /> : <Unlock size={18} />}
+          <DialogHeader className="space-y-3">
+            <div className="w-16 h-16 rounded-full bg-[#2a2a2a] mx-auto flex items-center justify-center">
+              {isCreating ? (
+                <Shield className="h-8 w-8 text-success" />
+              ) : (
+                <KeyRound className="h-8 w-8 text-amber-500" />
+              )}
+            </div>
+            <DialogTitle className="text-xl font-bold text-center">
               {title}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-400 text-center">
               {description}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4 space-y-4">
-            <div className="space-y-2">
-              <Input
-                id="password"
-                type="password"
-                placeholder="Digite a senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoFocus
-              />
+          <div className="py-6 space-y-4">
+            <div className="space-y-3">
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Digite a senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                  className="pr-10 bg-[#212121] border-gray-700 focus:border-success focus:ring-success text-gray-100"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               
               {isCreating && (
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  placeholder="Confirme a senha"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirme a senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pr-10 bg-[#212121] border-gray-700 focus:border-success focus:ring-success text-gray-100"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               )}
               
               {error && (
-                <p className="text-sm text-destructive">{error}</p>
+                <p className="text-sm text-red-400 bg-red-400/10 py-2 px-3 rounded border border-red-400/20">
+                  {error}
+                </p>
+              )}
+
+              {!error && isCreating && password.length > 0 && (
+                <div className="mt-1">
+                  <div className="w-full bg-gray-700/30 rounded-full h-1.5">
+                    <div 
+                      className={`h-1.5 rounded-full ${
+                        password.length < 6 ? 'bg-red-500' : 
+                        password.length < 10 ? 'bg-amber-500' : 
+                        'bg-success'
+                      }`} 
+                      style={{ width: `${Math.min(100, password.length * 10)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs mt-1 text-gray-400">
+                    {password.length < 6 ? 'Senha fraca' : 
+                     password.length < 10 ? 'Senha média' : 
+                     'Senha forte'}
+                  </p>
+                </div>
               )}
             </div>
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="gap-3 sm:gap-0">
             <Button 
               type="button" 
               variant="outline" 
               onClick={onClose}
               disabled={isSubmitting}
+              className="border-gray-700 hover:bg-gray-800 text-gray-300"
             >
               Cancelar
             </Button>
             <Button 
               type="submit"
               disabled={!password || (isCreating && !confirmPassword) || isSubmitting}
+              className="bg-success hover:bg-success/90 text-white"
             >
               {isSubmitting ? "Processando..." : isCreating ? "Criar senha" : "Desbloquear"}
             </Button>
