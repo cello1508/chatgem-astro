@@ -82,15 +82,17 @@ const ProductivityChart: React.FC = () => {
         </div>
         
         <div className="flex flex-col items-center justify-center pb-2">
-          <div className="w-[180px] h-[180px] mx-auto">
+          <div 
+            className="w-[180px] h-[100px] mx-auto transition-all duration-300 hover:h-[180px] relative"
+          >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
+                  innerRadius={30}
+                  outerRadius={40}
                   paddingAngle={2}
                   dataKey={showUsage ? "value" : "spending"}
                 >
