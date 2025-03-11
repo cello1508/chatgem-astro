@@ -84,7 +84,7 @@ const ProductivityChart: React.FC = () => {
         
         <div className="flex flex-col items-center justify-center pb-2">
           <div 
-            className="w-full h-[140px] mx-auto relative"
+            className="w-full h-[100px] mx-auto relative"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
@@ -95,8 +95,8 @@ const ProductivityChart: React.FC = () => {
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={55}
+                    innerRadius={30}
+                    outerRadius={40}
                     paddingAngle={2}
                     dataKey={showUsage ? "value" : "spending"}
                   >
