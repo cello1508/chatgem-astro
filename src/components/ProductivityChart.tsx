@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Clock, Share2, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, Share2, Copy, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface AIModelUsageData {
   name: string;
@@ -27,6 +28,7 @@ const ProductivityChart: React.FC = () => {
   const [reportText, setReportText] = useState('');
   const [showUsage, setShowUsage] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   
   const generateReport = () => {
     // Generate AI usage report
@@ -58,95 +60,112 @@ const ProductivityChart: React.FC = () => {
   
   return (
     <>
-      <div className="glass rounded-xl p-4 w-full">
-        <div className="flex justify-between items-center mb-4">
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="glass rounded-xl p-4 w-full"
+      >
+        <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-success" />
             <h3 className="text-sm font-medium">Uso de IA</h3>
           </div>
           <div className="flex items-center gap-2">
-            <button 
-              className="bg-transparent hover:bg-gray-700/30 p-1.5 rounded-full transition-colors"
-              onClick={toggleView}
-              title={showUsage ? "Ver gastos com IA" : "Ver uso de IA"}
-            >
-              {showUsage ? <ChevronRight className="w-4 h-4 text-gray-300" /> : <ChevronLeft className="w-4 h-4 text-gray-300" />}
-            </button>
-            <button 
-              onClick={generateReport}
-              className="flex items-center gap-1.5 text-xs text-success bg-success/10 px-2.5 py-1 rounded-full hover:bg-success/20 transition-colors"
-            >
-              <Share2 size={14} />
-              Relatório
-            </button>
+            <CollapsibleTrigger className="bg-transparent hover:bg-gray-700/30 p-1.5 rounded-full transition-colors">
+              {isOpen ? 
+                <ChevronUp className="w-4 h-4 text-gray-300" /> : 
+                <ChevronDown className="w-4 h-4 text-gray-300" />
+              }
+            </CollapsibleTrigger>
+            
+            {isOpen && (
+              <>
+                <button 
+                  className="bg-transparent hover:bg-gray-700/30 p-1.5 rounded-full transition-colors"
+                  onClick={toggleView}
+                  title={showUsage ? "Ver gastos com IA" : "Ver uso de IA"}
+                >
+                  {showUsage ? <ChevronRight className="w-4 h-4 text-gray-300" /> : <ChevronLeft className="w-4 h-4 text-gray-300" />}
+                </button>
+                <button 
+                  onClick={generateReport}
+                  className="flex items-center gap-1.5 text-xs text-success bg-success/10 px-2.5 py-1 rounded-full hover:bg-success/20 transition-colors"
+                >
+                  <Share2 size={14} />
+                  Relatório
+                </button>
+              </>
+            )}
           </div>
         </div>
         
-        <div className="flex flex-col items-center justify-center pb-2">
-          <div 
-            className="w-full h-[100px] mx-auto relative"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-          >
-            <div className="w-full h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={data}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={40}
-                    paddingAngle={2}
-                    dataKey={showUsage ? "value" : "spending"}
-                  >
-                    {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [
-                      showUsage ? `${value} consultas` : `$${value.toFixed(2)}`, 
-                      showUsage ? 'Uso' : 'Gasto'
-                    ]}
-                    contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+        <CollapsibleContent>
+          <div className="flex flex-col items-center justify-center pb-2 mt-4">
+            <div 
+              className="w-full h-[100px] mx-auto relative"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              <div className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={data}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={30}
+                      outerRadius={40}
+                      paddingAngle={2}
+                      dataKey={showUsage ? "value" : "spending"}
+                    >
+                      {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [
+                        showUsage ? `${value} consultas` : `$${value.toFixed(2)}`, 
+                        showUsage ? 'Uso' : 'Gasto'
+                      ]}
+                      contentStyle={{ background: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
+              {data.map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                    {item.name.length > 8 
+                      ? `${item.name.substring(0, 8)}... ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
+                      : `${item.name}: ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
+                    }
+                  </span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm font-medium">
+                {showUsage 
+                  ? `Total: ${totalUses} consultas` 
+                  : `Total: $${totalSpending.toFixed(2)}`}
+              </p>
+              
+              <button 
+                onClick={generateReport}
+                className="mt-4 flex items-center gap-2 px-4 py-1.5 mx-auto text-xs rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+              >
+                <Share2 size={16} />
+                Gerar Relatório
+              </button>
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
-            {data.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
-                  {item.name.length > 8 
-                    ? `${item.name.substring(0, 8)}... ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
-                    : `${item.name}: ${showUsage ? item.value : `$${item.spending.toFixed(2)}`}`
-                  }
-                </span>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-4 text-center">
-            <p className="text-sm font-medium">
-              {showUsage 
-                ? `Total: ${totalUses} consultas` 
-                : `Total: $${totalSpending.toFixed(2)}`}
-            </p>
-            
-            <button 
-              onClick={generateReport}
-              className="mt-4 flex items-center gap-2 px-4 py-1.5 mx-auto text-xs rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
-            >
-              <Share2 size={16} />
-              Gerar Relatório
-            </button>
-          </div>
-        </div>
-      </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md bg-white text-gray-700">
