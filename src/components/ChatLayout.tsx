@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import MessageList from './MessageList';
@@ -14,8 +13,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MessageType } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { webhookService } from '@/services/webhookService';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, Unlock, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
@@ -32,33 +32,28 @@ const ChatLayout: React.FC = () => {
   const [isCreatingPassword, setIsCreatingPassword] = useState(false);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
   const { toast } = useToast();
+  const { signOut } = useAuth();
 
-  // Check if any user messages exist
   const hasUserMessages = messages.some(message => message.role === 'user');
 
-  // Load conversations on mount
   useEffect(() => {
     loadConversations();
   }, []);
 
-  // Load a conversation when ID changes
   useEffect(() => {
     if (currentConversationId) {
       loadMessages(currentConversationId);
     }
   }, [currentConversationId]);
 
-  // Load all conversations from Supabase
   const loadConversations = async () => {
     try {
       const conversationsData = await webhookService.getConversations();
       setConversations(conversationsData);
       
-      // If no conversation is selected yet and there are conversations
       if (!currentConversationId && conversationsData.length > 0) {
         setCurrentConversationId(conversationsData[0].id);
       } else if (!currentConversationId) {
-        // If no conversations exist, create one
         const newConversation = await webhookService.createConversation();
         setCurrentConversationId(newConversation.id);
         setConversations([newConversation]);
@@ -73,16 +68,13 @@ const ChatLayout: React.FC = () => {
     }
   };
 
-  // Load messages for a specific conversation
   const loadMessages = async (conversationId: string) => {
     setIsLoadingConversation(true);
     try {
-      // Check if the conversation is encrypted
       const conversation = conversations.find(c => c.id === conversationId);
       const isEncrypted = conversation?.is_encrypted || false;
       setIsEncrypted(isEncrypted);
       
-      // If encrypted and we don't have the password, prompt for it
       if (isEncrypted && !chatPassword) {
         setMessages([{
           id: 'encrypted-placeholder',
@@ -96,11 +88,9 @@ const ChatLayout: React.FC = () => {
         return;
       }
       
-      // Load messages
       const messagesData = await webhookService.getMessages(conversationId);
       
       if (messagesData.length === 0) {
-        // If no messages, add a welcome message
         setMessages([{
           id: '1',
           role: 'assistant',
@@ -108,12 +98,9 @@ const ChatLayout: React.FC = () => {
           timestamp: new Date().toISOString(),
         }]);
       } else {
-        // If there are messages
         if (isEncrypted && chatPassword) {
-          // If encrypted and we have the password, decrypt them
           setMessages(messagesData);
         } else {
-          // If not encrypted, just set them
           setMessages(messagesData);
         }
       }
@@ -135,7 +122,6 @@ const ChatLayout: React.FC = () => {
     }
   };
 
-  // Create a new conversation
   const handleNewConversation = async () => {
     try {
       const newConversation = await webhookService.createConversation();
@@ -157,10 +143,8 @@ const ChatLayout: React.FC = () => {
     }
   };
 
-  // Toggle encryption for the current conversation
   const handleEncryptToggle = () => {
     if (isEncrypted) {
-      // Disable encryption
       setIsEncrypted(false);
       setChatPassword(null);
       toast({
@@ -168,23 +152,18 @@ const ChatLayout: React.FC = () => {
         description: "A conversa agora está desprotegida.",
       });
     } else {
-      // Enable encryption
       setShowPasswordDialog(true);
       setIsCreatingPassword(true);
     }
   };
 
-  // Create or verify password for encrypted conversation
   const handlePasswordSubmit = async (password: string) => {
     if (isCreatingPassword) {
-      // Setting a new password
       try {
         if (currentConversationId) {
           await webhookService.setConversationPassword(currentConversationId, password);
           setIsEncrypted(true);
           setChatPassword(password);
-          
-          // Update conversations list
           loadConversations();
           return true;
         }
@@ -193,7 +172,6 @@ const ChatLayout: React.FC = () => {
         return false;
       }
     } else {
-      // Verifying password
       try {
         if (currentConversationId) {
           const isValid = await webhookService.verifyConversationPassword(
@@ -203,7 +181,6 @@ const ChatLayout: React.FC = () => {
           
           if (isValid) {
             setChatPassword(password);
-            // Now reload messages with the password
             loadMessages(currentConversationId);
             return true;
           }
@@ -217,7 +194,6 @@ const ChatLayout: React.FC = () => {
     return false;
   };
 
-  // Decrypt a message when requested
   const handleDecryptMessage = async (message: MessageType): Promise<MessageType> => {
     if (!message.encrypted_content || !chatPassword) {
       return message;
@@ -257,7 +233,6 @@ const ChatLayout: React.FC = () => {
     
     let encryptedContent: string | undefined = undefined;
     
-    // If encryption is enabled, encrypt the message
     if (isEncrypted && chatPassword) {
       try {
         encryptedContent = await webhookService.encryptText(content, chatPassword);
@@ -272,10 +247,8 @@ const ChatLayout: React.FC = () => {
       }
     }
     
-    // Add message to UI
     setMessages(prev => [...prev, userMessage]);
     
-    // Save message to Supabase
     try {
       await webhookService.saveMessage(
         currentConversationId, 
@@ -290,7 +263,6 @@ const ChatLayout: React.FC = () => {
     setIsTyping(true);
     
     try {
-      // Pass the modelId to the webhookService
       const webhookResponse = await webhookService.sendMessage(content, selectedModel);
       
       const assistantMessage: MessageType = {
@@ -298,10 +270,9 @@ const ChatLayout: React.FC = () => {
         role: 'assistant',
         content: webhookResponse.answer || "Desculpe, não consegui processar sua pergunta. Tente novamente.",
         timestamp: new Date().toISOString(),
-        modelId: selectedModel, // Store the model ID with the message
+        modelId: selectedModel,
       };
       
-      // If encryption is enabled, encrypt the response
       let encryptedResponse: string | undefined = undefined;
       if (isEncrypted && chatPassword) {
         try {
@@ -311,10 +282,8 @@ const ChatLayout: React.FC = () => {
         }
       }
       
-      // Add message to UI
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Save message to Supabase
       try {
         await webhookService.saveMessage(
           currentConversationId, 
@@ -323,7 +292,6 @@ const ChatLayout: React.FC = () => {
           encryptedResponse
         );
         
-        // Refresh conversations list to update the "updated_at" timestamp
         loadConversations();
       } catch (error) {
         console.error('Erro ao salvar resposta:', error);
@@ -345,7 +313,6 @@ const ChatLayout: React.FC = () => {
       
       setMessages(prev => [...prev, errorMessage]);
       
-      // Save error message to Supabase
       try {
         await webhookService.saveMessage(currentConversationId, errorMessage);
       } catch (saveError) {
@@ -444,8 +411,8 @@ const ChatLayout: React.FC = () => {
             </button>
           )}
           
-          {currentConversationId && activeSection === 'chat' && (
-            <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2">
+            {currentConversationId && activeSection === 'chat' && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -459,8 +426,18 @@ const ChatLayout: React.FC = () => {
                   <Unlock size={18} />
                 )}
               </Button>
-            </div>
-          )}
+            )}
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="text-gray-400 hover:text-white"
+              title="Sair"
+            >
+              <LogOut size={18} />
+            </Button>
+          </div>
         </div>
         
         <div className="flex flex-col h-full">
