@@ -6,4 +6,5 @@ export interface MessageType {
   timestamp: string;
   isProcessing?: boolean;
   modelId?: string;
+  encrypted_content?: string;
 }

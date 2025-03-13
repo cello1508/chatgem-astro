@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -66,7 +65,7 @@ const PasswordDialog: React.FC<PasswordDialogProps> = ({
           description: isCreating 
             ? "Conversa protegida com sucesso."
             : "Você agora tem acesso à conversa.",
-          variant: "success",
+          variant: "default",
         });
       } else {
         setError("Senha incorreta. Tente novamente.");
