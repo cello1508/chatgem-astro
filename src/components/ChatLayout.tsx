@@ -16,6 +16,8 @@ export function ChatLayout() {
     },
   ]);
   const [loading, setLoading] = useState(false);
+  const [activeSection, setActiveSection] = useState('chat');
+  const [isTyping, setIsTyping] = useState(false);
   
   const {
     isPremium,
@@ -43,6 +45,7 @@ export function ChatLayout() {
     
     // In a real app, you would send the message to an API here
     setLoading(true);
+    setIsTyping(true);
     
     // Simulate API delay
     setTimeout(() => {
@@ -54,12 +57,26 @@ export function ChatLayout() {
         },
       ]);
       setLoading(false);
+      setIsTyping(false);
     }, 1000);
+  };
+
+  const handleCloseMenu = () => {
+    // Placeholder function for Sidebar onClose prop
+    console.log("Sidebar closed");
+  };
+
+  const handleChangeSection = (section: string) => {
+    setActiveSection(section);
   };
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar />
+      <Sidebar 
+        onClose={handleCloseMenu} 
+        onChangeSection={handleChangeSection}
+        activeSection={activeSection}
+      />
       <div className="flex-1 flex flex-col">
         <ChatHeader 
           isPremium={isPremium}
@@ -69,7 +86,10 @@ export function ChatLayout() {
           isLocked={isLocked}
         />
         <div className="flex-1 overflow-hidden flex flex-col">
-          <MessageList messages={messages} />
+          <MessageList 
+            messages={messages} 
+            isTyping={isTyping}
+          />
           <ChatInput onSendMessage={handleSendMessage} disabled={loading || isLocked} />
         </div>
       </div>

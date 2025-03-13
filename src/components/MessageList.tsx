@@ -29,7 +29,7 @@ const MessageList: React.FC<MessageListProps> = ({
       <div className="pb-20 pt-4">
         {messages.map((message, index) => (
           <ChatMessage 
-            key={message.id} 
+            key={message.id || index} 
             message={message}
             isLast={index === messages.length - 1 && message.role === 'assistant'} 
             isEncrypted={needsDecryption && message.content === 'ENCRYPTED_CONTENT'}

@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { SubscriptionButton } from './SubscriptionButton';
+import { Lock, Unlock } from 'lucide-react';
 
 interface ChatHeaderProps {
   isPremium: boolean;
